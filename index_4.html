@@ -1,0 +1,1590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>NEET PG 2026 — Revision Dashboard</title>
+<style>
+:root{
+  --bg:#0f1117;--bg2:#161922;--bg3:#1e2130;--bg4:#252840;
+  --card:#1a1d2e;--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --text:#e8eaf0;--text2:#9098b8;--text3:#5a6080;
+  --accent:#6c8ef5;--accent2:#4f70e8;
+  --green:#34d399;--green2:#10b981;
+  --amber:#fbbf24;--amber2:#d97706;
+  --red:#f87171;--red2:#ef4444;
+  --purple:#a78bfa;--teal:#2dd4bf;--pink:#f472b6;
+  --radius:10px;--radius2:14px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.5;}
+
+/* SIDEBAR */
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:220px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:100;overflow-y:auto;scrollbar-width:none;}
+.sidebar::-webkit-scrollbar{display:none;}
+.sidebar-logo{padding:20px 18px 14px;border-bottom:1px solid var(--border);}
+.logo-title{font-size:15px;font-weight:700;color:var(--text);letter-spacing:-0.3px;}
+.logo-sub{font-size:11px;color:var(--text3);margin-top:2px;}
+.exam-countdown{margin:12px 12px 0;background:linear-gradient(135deg,#1e2a5e,#2a1e5e);border-radius:var(--radius);padding:12px;text-align:center;}
+.countdown-num{font-size:32px;font-weight:800;color:var(--accent);line-height:1;}
+.countdown-label{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:0.8px;margin-top:3px;}
+.sidebar-nav{padding:12px 0;flex:1;}
+.nav-section-label{font-size:9px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:1px;padding:8px 18px 4px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 18px;cursor:pointer;color:var(--text2);font-size:13px;border-left:2px solid transparent;text-decoration:none;transition:all 0.15s;}
+.nav-item:hover{color:var(--text);background:rgba(255,255,255,0.04);}
+.nav-item.active{color:var(--accent);background:rgba(108,142,245,0.08);border-left-color:var(--accent);}
+.nav-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.nav-badge{margin-left:auto;font-size:10px;font-weight:600;background:rgba(108,142,245,0.15);color:var(--accent);padding:1px 6px;border-radius:10px;}
+.sidebar-footer{padding:12px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:6px;}
+.reset-btn{width:100%;padding:8px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.2);border-radius:var(--radius);color:var(--red);font-size:12px;cursor:pointer;transition:all 0.15s;}
+.reset-btn:hover{background:rgba(248,113,113,0.2);}
+
+/* MAIN */
+.main{margin-left:220px;min-height:100vh;}
+.topbar{position:sticky;top:0;z-index:50;background:rgba(15,17,23,0.9);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:12px 28px;display:flex;align-items:center;gap:16px;}
+.topbar-title{font-size:16px;font-weight:600;flex:1;}
+.overall-pill{display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--border2);border-radius:20px;padding:5px 14px;font-size:12px;color:var(--text2);}
+.overall-pill strong{color:var(--green);font-size:14px;font-weight:700;}
+.phase-pill{font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px;background:rgba(108,142,245,0.12);color:var(--accent);border:1px solid rgba(108,142,245,0.25);text-transform:uppercase;letter-spacing:0.5px;}
+
+/* PAGES */
+.page{display:none;padding:24px 28px;}
+.page.active{display:block;}
+
+/* SECTION HEADER */
+.section-hdr{display:flex;align-items:center;gap:12px;margin-bottom:20px;}
+.section-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+.section-title{font-size:18px;font-weight:700;}
+.section-sub{font-size:12px;color:var(--text2);margin-top:1px;}
+
+/* GRIDS */
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
+
+/* STAT CARDS */
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius2);padding:16px 18px;}
+.stat-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:6px;}
+.stat-val{font-size:28px;font-weight:800;line-height:1;}
+.stat-unit{font-size:13px;font-weight:400;color:var(--text2);margin-left:2px;}
+.stat-sub{font-size:11px;color:var(--text3);margin-top:5px;}
+.c-accent{color:var(--accent);}.c-green{color:var(--green);}.c-amber{color:var(--amber);}.c-red{color:var(--red);}.c-purple{color:var(--purple);}
+
+/* PROGRESS BAR */
+.prog-bar-wrap{background:rgba(255,255,255,0.06);border-radius:4px;height:6px;overflow:hidden;margin-top:8px;}
+.prog-bar{height:6px;border-radius:4px;transition:width 0.5s ease;}
+.prog-green{background:linear-gradient(90deg,var(--green2),var(--green));}
+.prog-blue{background:linear-gradient(90deg,var(--accent2),var(--accent));}
+.prog-amber{background:linear-gradient(90deg,var(--amber2),var(--amber));}
+.prog-purple{background:linear-gradient(90deg,#7c3aed,var(--purple));}
+
+/* CHART CARD */
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius2);padding:18px 20px;}
+.chart-title{font-size:13px;font-weight:600;margin-bottom:14px;color:var(--text2);}
+.bar-h-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.bar-h-label{font-size:12px;color:var(--text2);width:140px;flex-shrink:0;text-align:right;}
+.bar-h-wrap{flex:1;background:rgba(255,255,255,0.05);border-radius:4px;height:18px;overflow:hidden;position:relative;}
+.bar-h-fill{height:18px;border-radius:4px;transition:width 0.6s ease;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;}
+.bar-h-val{font-size:10px;font-weight:700;color:rgba(255,255,255,0.9);}
+
+/* SUBJECT BLOCKS */
+.subject-block{background:var(--card);border:1px solid var(--border);border-radius:var(--radius2);margin-bottom:14px;overflow:hidden;}
+.subject-header{display:flex;align-items:center;gap:12px;padding:14px 18px;cursor:pointer;transition:background 0.15s;}
+.subject-header:hover{background:rgba(255,255,255,0.03);}
+.subject-color-bar{width:4px;height:32px;border-radius:2px;flex-shrink:0;}
+.subject-info{flex:1;min-width:0;}
+.subject-name{font-size:14px;font-weight:600;}
+.subject-meta{font-size:11px;color:var(--text3);margin-top:1px;}
+.subject-stats{display:flex;align-items:center;gap:14px;}
+.chevron{font-size:12px;color:var(--text3);transition:transform 0.2s;}
+.subject-block.open .chevron{transform:rotate(180deg);}
+
+/* TOPIC LIST */
+.topic-list{border-top:1px solid var(--border);}
+.topic-group{padding:10px 16px 10px 16px;border-bottom:1px solid var(--border);}
+.topic-group:last-child{border-bottom:none;}
+.topic-group-header{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.topic-group-label{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;flex:1;}
+.topic-item{display:flex;align-items:flex-start;gap:10px;padding:5px 0;border-radius:6px;}
+.topic-check{width:16px;height:16px;border-radius:4px;border:1.5px solid var(--border2);background:transparent;cursor:pointer;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
+.topic-check:hover{border-color:var(--accent);}
+.topic-check.checked{background:var(--green2);border-color:var(--green2);}
+.topic-check.checked::after{content:'✓';color:#fff;font-size:10px;font-weight:700;}
+.topic-check.partial{background:rgba(251,191,36,0.2);border-color:var(--amber);}
+.topic-check.partial::after{content:'~';color:var(--amber);font-size:11px;font-weight:700;}
+.topic-label{font-size:13px;color:var(--text2);flex:1;line-height:1.4;cursor:pointer;}
+.topic-label.checked{color:var(--text3);text-decoration:line-through;}
+.topic-label-edit{font-size:13px;color:var(--text);flex:1;background:var(--bg3);border:1px solid var(--accent);border-radius:5px;padding:3px 8px;outline:none;}
+.topic-tag{font-size:9px;font-weight:700;padding:1px 6px;border-radius:8px;flex-shrink:0;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px;}
+.tag-hy{background:rgba(248,113,113,0.15);color:var(--red);}
+.tag-imp{background:rgba(251,191,36,0.15);color:var(--amber);}
+.tag-std{background:rgba(255,255,255,0.06);color:var(--text3);}
+
+/* EDIT MODE */
+.edit-mode-bar{display:flex;align-items:center;gap:8px;padding:10px 16px;background:rgba(108,142,245,0.08);border-bottom:1px solid rgba(108,142,245,0.2);}
+.edit-badge{font-size:10px;font-weight:700;background:var(--accent);color:#fff;padding:2px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:0.5px;}
+.btn-sm{padding:5px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid;transition:all 0.15s;}
+.btn-green{background:rgba(52,211,153,0.1);border-color:rgba(52,211,153,0.3);color:var(--green);}
+.btn-green:hover{background:rgba(52,211,153,0.2);}
+.btn-red{background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.25);color:var(--red);}
+.btn-red:hover{background:rgba(248,113,113,0.2);}
+.btn-blue{background:rgba(108,142,245,0.1);border-color:rgba(108,142,245,0.3);color:var(--accent);}
+.btn-blue:hover{background:rgba(108,142,245,0.2);}
+.btn-amber{background:rgba(251,191,36,0.1);border-color:rgba(251,191,36,0.25);color:var(--amber);}
+.btn-amber:hover{background:rgba(251,191,36,0.2);}
+.btn-ghost{background:transparent;border-color:var(--border2);color:var(--text3);}
+.btn-ghost:hover{color:var(--text);border-color:var(--text3);}
+.icon-btn{width:22px;height:22px;border-radius:4px;border:none;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:12px;transition:all 0.15s;flex-shrink:0;}
+.icon-btn-del{background:rgba(248,113,113,0.1);color:var(--red);}
+.icon-btn-del:hover{background:rgba(248,113,113,0.25);}
+.icon-btn-edit{background:rgba(108,142,245,0.1);color:var(--accent);}
+.icon-btn-edit:hover{background:rgba(108,142,245,0.25);}
+.add-topic-row{display:flex;align-items:center;gap:8px;padding:8px 16px;background:rgba(108,142,245,0.04);border-top:1px dashed rgba(108,142,245,0.15);}
+.add-topic-input{flex:1;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;color:var(--text);font-size:12px;padding:5px 10px;outline:none;}
+.add-topic-input:focus{border-color:var(--accent);}
+.add-group-row{padding:10px 16px;background:rgba(52,211,153,0.03);border-top:1px dashed rgba(52,211,153,0.15);}
+.add-group-input{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;color:var(--text);font-size:12px;padding:6px 10px;outline:none;margin-bottom:6px;}
+.add-group-input:focus{border-color:var(--green);}
+.group-name-edit{background:var(--bg3);border:1px solid var(--accent);border-radius:5px;color:var(--text);font-size:11px;padding:2px 8px;outline:none;font-weight:600;text-transform:uppercase;letter-spacing:0.6px;}
+.tag-select{background:var(--bg3);border:1px solid var(--border2);border-radius:5px;color:var(--text2);font-size:10px;padding:2px 5px;outline:none;}
+
+/* SCHEDULE */
+.schedule-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--radius2);overflow:hidden;}
+.sched-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.sched-header-title{font-size:14px;font-weight:600;flex:1;}
+.exam-date-input{background:var(--bg3);border:1px solid var(--border2);border-radius:6px;color:var(--text);font-size:13px;padding:6px 10px;outline:none;}
+.exam-date-input:focus{border-color:var(--accent);}
+.sched-table{width:100%;border-collapse:collapse;font-size:13px;}
+.sched-table th{background:var(--bg3);color:var(--text3);font-size:10px;text-transform:uppercase;letter-spacing:0.6px;font-weight:600;padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);}
+.sched-table td{padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:top;}
+.sched-table tr:last-child td{border-bottom:none;}
+.sched-table tr:hover td{background:rgba(255,255,255,0.015);}
+.sday-chip{display:inline-block;font-size:11px;font-weight:500;padding:3px 9px;border-radius:20px;margin:2px;}
+.chip-blue{background:rgba(108,142,245,0.15);color:var(--accent);}
+.chip-green{background:rgba(52,211,153,0.12);color:var(--green);}
+.chip-amber{background:rgba(251,191,36,0.12);color:var(--amber);}
+.chip-red{background:rgba(248,113,113,0.12);color:var(--red);}
+.chip-purple{background:rgba(167,139,250,0.12);color:var(--purple);}
+.chip-teal{background:rgba(45,212,191,0.12);color:var(--teal);}
+.day-check{width:20px;height:20px;border-radius:5px;border:1.5px solid var(--border2);background:transparent;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:all 0.15s;}
+.day-check:hover{border-color:var(--green);}
+.day-check.checked{background:var(--green2);border-color:var(--green2);}
+.day-check.checked::after{content:'✓';color:#fff;font-size:11px;font-weight:700;}
+.today-row td{background:rgba(108,142,245,0.05);}
+.sched-notes-input{background:transparent;border:none;color:var(--text2);font-size:11px;width:100%;outline:none;font-family:inherit;}
+.sched-notes-input:focus{color:var(--text);}
+
+/* MOCK */
+.mock-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+.mock-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius2);padding:16px;transition:all 0.2s;}
+.mock-card:hover{border-color:var(--border2);}
+.mock-card.done{border-color:rgba(52,211,153,0.3);background:rgba(16,185,129,0.05);}
+.mock-num{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.6px;}
+.mock-title{font-size:13px;font-weight:600;margin:6px 0 3px;}
+.mock-date{font-size:11px;color:var(--text3);}
+.mock-score-input{width:60px;padding:5px 8px;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;color:var(--text);font-size:14px;font-weight:700;text-align:center;outline:none;}
+.mock-score-input:focus{border-color:var(--green);}
+.mock-status{font-size:10px;font-weight:600;padding:3px 8px;border-radius:10px;margin-top:10px;display:inline-block;}
+.status-done{background:rgba(52,211,153,0.15);color:var(--green);}
+.status-upcoming{background:rgba(108,142,245,0.12);color:var(--accent);}
+.status-warn{background:rgba(251,191,36,0.12);color:var(--amber);}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.hidden{display:none;}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius2);padding:24px;width:100%;max-width:460px;}
+.modal-title{font-size:16px;font-weight:700;margin-bottom:16px;}
+.modal-input{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;color:var(--text);font-size:13px;padding:8px 12px;outline:none;margin-bottom:10px;}
+.modal-input:focus{border-color:var(--accent);}
+.modal-row{display:flex;gap:8px;justify-content:flex-end;margin-top:6px;}
+
+/* NOTES */
+.notes-area{width:100%;min-height:80px;padding:12px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-size:13px;resize:vertical;outline:none;font-family:inherit;line-height:1.6;}
+.notes-area:focus{border-color:var(--accent);}
+
+/* STRATEGY */
+.strat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius2);padding:18px 20px;margin-bottom:12px;}
+.strat-card-title{font-size:14px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+.strat-list{list-style:none;}
+.strat-list li{display:flex;align-items:flex-start;gap:8px;padding:5px 0;font-size:13px;color:var(--text2);border-bottom:1px solid rgba(255,255,255,0.04);}
+.strat-list li:last-child{border-bottom:none;}
+.strat-list li::before{content:'→';color:var(--accent);flex-shrink:0;font-weight:700;}
+
+/* HEATMAP */
+.heatmap{display:flex;flex-wrap:wrap;gap:3px;margin-top:10px;}
+.hm-cell{width:18px;height:18px;border-radius:3px;background:rgba(255,255,255,0.05);cursor:pointer;transition:all 0.15s;}
+.hm-cell:hover{transform:scale(1.3);z-index:2;}
+.hm-cell.hm-4{background:var(--green);}
+.hm-legend{display:flex;align-items:center;gap:4px;margin-top:8px;}
+.hm-legend-label{font-size:10px;color:var(--text3);}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;z-index:999;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);padding:10px 16px;font-size:13px;color:var(--text);opacity:0;transform:translateY(10px);transition:all 0.3s;pointer-events:none;}
+.toast.show{opacity:1;transform:translateY(0);}
+
+::-webkit-scrollbar{width:6px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:3px;}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-title">NEET PG 2026</div>
+    <div class="logo-sub">Revision Dashboard</div>
+  </div>
+  <div class="exam-countdown">
+    <div class="countdown-num" id="countdown-num">--</div>
+    <div class="countdown-label">days to exam</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Overview</div>
+    <a class="nav-item active" onclick="showPage('dashboard',this)" href="#">
+      <span class="nav-dot" style="background:#6c8ef5"></span><span>Dashboard</span>
+    </a>
+    <a class="nav-item" onclick="showPage('schedule',this)" href="#">
+      <span class="nav-dot" style="background:#34d399"></span><span>Schedule</span>
+    </a>
+    <a class="nav-item" onclick="showPage('mocks',this)" href="#">
+      <span class="nav-dot" style="background:#fbbf24"></span><span>Mock Tests</span>
+    </a>
+    <div class="nav-section-label">Subjects</div>
+    <a class="nav-item" onclick="showPage('medicine',this)" href="#"><span class="nav-dot" style="background:#6c8ef5"></span><span>Medicine</span><span class="nav-badge" id="badge-medicine">0%</span></a>
+    <a class="nav-item" onclick="showPage('surgery',this)" href="#"><span class="nav-dot" style="background:#34d399"></span><span>Surgery</span><span class="nav-badge" id="badge-surgery">0%</span></a>
+    <a class="nav-item" onclick="showPage('pharmacology',this)" href="#"><span class="nav-dot" style="background:#f87171"></span><span>Pharmacology</span><span class="nav-badge" id="badge-pharmacology">0%</span></a>
+    <a class="nav-item" onclick="showPage('pathology',this)" href="#"><span class="nav-dot" style="background:#a78bfa"></span><span>Pathology</span><span class="nav-badge" id="badge-pathology">0%</span></a>
+    <a class="nav-item" onclick="showPage('microbiology',this)" href="#"><span class="nav-dot" style="background:#2dd4bf"></span><span>Microbiology</span><span class="nav-badge" id="badge-microbiology">0%</span></a>
+    <a class="nav-item" onclick="showPage('obg',this)" href="#"><span class="nav-dot" style="background:#f472b6"></span><span>OBG</span><span class="nav-badge" id="badge-obg">0%</span></a>
+    <a class="nav-item" onclick="showPage('ophthalmology',this)" href="#"><span class="nav-dot" style="background:#fbbf24"></span><span>Ophthalmology</span><span class="nav-badge" id="badge-ophthalmology">0%</span></a>
+    <a class="nav-item" onclick="showPage('paediatrics',this)" href="#"><span class="nav-dot" style="background:#34d399"></span><span>Paediatrics</span><span class="nav-badge" id="badge-paediatrics">0%</span></a>
+    <a class="nav-item" onclick="showPage('anatomy',this)" href="#"><span class="nav-dot" style="background:#6c8ef5"></span><span>Anatomy</span><span class="nav-badge" id="badge-anatomy">0%</span></a>
+    <a class="nav-item" onclick="showPage('physiology',this)" href="#"><span class="nav-dot" style="background:#2dd4bf"></span><span>Physiology</span><span class="nav-badge" id="badge-physiology">0%</span></a>
+    <a class="nav-item" onclick="showPage('biochemistry',this)" href="#"><span class="nav-dot" style="background:#fbbf24"></span><span>Biochemistry</span><span class="nav-badge" id="badge-biochemistry">0%</span></a>
+    <a class="nav-item" onclick="showPage('misc',this)" href="#"><span class="nav-dot" style="background:#a78bfa"></span><span>Misc</span><span class="nav-badge" id="badge-misc">0%</span></a>
+    <div class="nav-section-label">Tools</div>
+    <a class="nav-item" onclick="showPage('progress',this)" href="#"><span class="nav-dot" style="background:#34d399"></span><span>Progress</span></a>
+    <a class="nav-item" onclick="showPage('strategy',this)" href="#"><span class="nav-dot" style="background:#6c8ef5"></span><span>Strategy</span></a>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="reset-btn" onclick="confirmReset()">⚠ Reset All Data</button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="topbar-title">Dashboard</div>
+    <div class="overall-pill">Overall: <strong id="overall-pct">0%</strong> complete</div>
+    <div class="phase-pill" id="phase-indicator">Phase 1</div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="page active" id="page-dashboard">
+    <div class="section-hdr">
+      <div class="section-icon" style="background:rgba(108,142,245,0.12)">🎯</div>
+      <div><div class="section-title">Revision Overview</div><div class="section-sub">Your complete NEET PG 2026 preparation at a glance</div></div>
+    </div>
+    <div class="grid-4">
+      <div class="stat-card">
+        <div class="stat-label">Topics Done</div>
+        <div class="stat-val c-green"><span id="db-topics-done">0</span><span class="stat-unit">topics</span></div>
+        <div class="stat-sub" id="db-topics-total">of 0 total</div>
+        <div class="prog-bar-wrap"><div class="prog-bar prog-green" id="db-bar-topics" style="width:0%"></div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Days Elapsed</div>
+        <div class="stat-val c-accent"><span id="db-days-elapsed">0</span><span class="stat-unit">days</span></div>
+        <div class="stat-sub" id="db-days-remain">-- days remaining</div>
+        <div class="prog-bar-wrap"><div class="prog-bar prog-blue" id="db-bar-days" style="width:0%"></div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">MCQs Solved</div>
+        <div class="stat-val c-amber"><span id="db-mcqs">0</span><span class="stat-unit">Qs</span></div>
+        <div class="stat-sub">Target: 25,000+ total</div>
+        <div class="prog-bar-wrap"><div class="prog-bar prog-amber" id="db-bar-mcqs" style="width:0%"></div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Mocks Taken</div>
+        <div class="stat-val c-purple"><span id="db-mocks-done">0</span><span class="stat-unit">/ 8</span></div>
+        <div class="stat-sub" id="db-best-score">Best: —</div>
+        <div class="prog-bar-wrap"><div class="prog-bar prog-purple" id="db-bar-mocks" style="width:0%"></div></div>
+      </div>
+    </div>
+    <div class="chart-card" style="margin-bottom:16px">
+      <div class="chart-title">Subject-wise completion</div>
+      <div id="subject-bars-overview"></div>
+    </div>
+    <div class="grid-2">
+      <div class="chart-card">
+        <div class="chart-title">📅 Today's focus</div>
+        <div id="todays-plan" style="font-size:13px;color:var(--text2);line-height:2.2"></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">📝 Quick notes</div>
+        <textarea class="notes-area" id="global-notes" placeholder="Today's important points, errors to review..." oninput="saveNotes()"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCHEDULE -->
+  <div class="page" id="page-schedule">
+    <div class="section-hdr">
+      <div class="section-icon" style="background:rgba(52,211,153,0.12)">📅</div>
+      <div><div class="section-title">Study Schedule</div><div class="section-sub">Auto-generated from your exam date · Mark days complete as you go</div></div>
+    </div>
+    <div class="schedule-wrap">
+      <div class="sched-header">
+        <div class="sched-header-title">📆 Set your exam date to generate the full schedule</div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <label style="font-size:12px;color:var(--text3)">Exam date:</label>
+          <input type="date" class="exam-date-input" id="exam-date-picker" onchange="onExamDateChange(this.value)"/>
+          <label style="font-size:12px;color:var(--text3)">Start date:</label>
+          <input type="date" class="exam-date-input" id="start-date-picker" onchange="onStartDateChange(this.value)"/>
+          <button class="btn-sm btn-blue" onclick="generateAndRenderSchedule()">Generate Schedule</button>
+        </div>
+      </div>
+      <div id="schedule-container"></div>
+    </div>
+  </div>
+
+  <!-- MOCKS -->
+  <div class="page" id="page-mocks">
+    <div class="section-hdr">
+      <div class="section-icon" style="background:rgba(251,191,36,0.12)">📝</div>
+      <div><div class="section-title">Mock Test Tracker</div><div class="section-sub">8 full-length tests · Enter score after each mock</div></div>
+    </div>
+    <div class="mock-grid" id="mock-grid"></div>
+    <div class="grid-2">
+      <div class="chart-card">
+        <div class="chart-title">Score progression</div>
+        <div id="mock-score-chart"></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Analysis notes</div>
+        <textarea class="notes-area" id="mock-notes" placeholder="Weak subjects, recurring errors, action points..." oninput="saveNotes()"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUBJECT PAGES (injected by JS) -->
+  <div class="page" id="page-medicine"></div>
+  <div class="page" id="page-surgery"></div>
+  <div class="page" id="page-pharmacology"></div>
+  <div class="page" id="page-pathology"></div>
+  <div class="page" id="page-microbiology"></div>
+  <div class="page" id="page-obg"></div>
+  <div class="page" id="page-ophthalmology"></div>
+  <div class="page" id="page-paediatrics"></div>
+  <div class="page" id="page-anatomy"></div>
+  <div class="page" id="page-physiology"></div>
+  <div class="page" id="page-biochemistry"></div>
+  <div class="page" id="page-misc"></div>
+
+  <!-- PROGRESS -->
+  <div class="page" id="page-progress">
+    <div class="section-hdr">
+      <div class="section-icon" style="background:rgba(52,211,153,0.12)">📊</div>
+      <div><div class="section-title">Progress Analytics</div><div class="section-sub">Live tracking across all subjects</div></div>
+    </div>
+    <div class="grid-2">
+      <div class="chart-card">
+        <div class="chart-title">Completion by subject</div>
+        <div id="progress-bars"></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Activity heatmap</div>
+        <div class="heatmap" id="heatmap"></div>
+        <div class="hm-legend" style="margin-top:8px">
+          <span class="hm-legend-label">Less</span>
+          <div class="hm-cell" style="pointer-events:none"></div>
+          <div class="hm-cell hm-4" style="pointer-events:none"></div>
+          <span class="hm-legend-label">More</span>
+        </div>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Subject priority matrix (size = exam weightage · click to open subject)</div>
+      <div id="priority-matrix" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px"></div>
+    </div>
+  </div>
+
+  <!-- STRATEGY -->
+  <div class="page" id="page-strategy">
+    <div class="section-hdr">
+      <div class="section-icon" style="background:rgba(108,142,245,0.12)">🧠</div>
+      <div><div class="section-title">Strategy Guide</div><div class="section-sub">Your personalised NEET PG 2026 battle plan</div></div>
+    </div>
+    <div class="grid-2">
+      <div>
+        <div class="strat-card"><div class="strat-card-title"><span style="color:var(--red)">🚨</span> Pharmacology — rescue plan</div><ul class="strat-list"><li>Do Pharma in Block 3 EVERY single day</li><li>200 Pharma MCQs daily throughout Rev 1</li><li>Focus: mechanism + prototype drug + adverse effects</li><li>High-yield: ANS, CVS, CNS, Antimicrobials, Cancer drugs</li><li>Rev 2: only one-liners and drug tables</li></ul></div>
+        <div class="strat-card"><div class="strat-card-title"><span style="color:var(--amber)">👁</span> Ophthalmology — fast track</div><ul class="strat-list"><li>Split into 4 sessions across Rev 1</li><li>Priority: IOP values, visual acuity, field defects</li><li>Glaucoma — open vs closed angle, drugs</li><li>Retina — CRVO, CRAO, DR grading, AMD</li><li>150 MCQs per Opthal session minimum</li></ul></div>
+        <div class="strat-card"><div class="strat-card-title"><span style="color:var(--teal)">📖</span> The 60-30-10 rule</div><ul class="strat-list"><li>60% → strong subjects (stay sharp, high marks)</li><li>30% → Pharmacology + Ophthalmology (boost zone)</li><li>10% → Random mixed MCQs</li><li>Never let Pharma + Opthal drop below 150 MCQs/day</li></ul></div>
+      </div>
+      <div>
+        <div class="strat-card"><div class="strat-card-title"><span style="color:var(--green)">🎯</span> Mock test protocol</div><ul class="strat-list"><li>Every mock = strict exam conditions, no phone</li><li>After mock: 3-hour mandatory analysis</li><li>Log every wrong: knowledge gap / silly / guess</li><li>Track error rate by subject across all mocks</li><li>Target: M1→370, M4→500, M6→560, M8→640+</li></ul></div>
+        <div class="strat-card"><div class="strat-card-title"><span style="color:var(--purple)">⚡</span> Revision 2 rules</div><ul class="strat-list"><li>NO full note re-reading — only one-liners, tables</li><li>Each subject max 1 day in Rev 2</li><li>MCQ volume → 900 questions/day</li><li>Active recall only — close notes, test yourself first</li><li>No new topic after 25 days before exam</li></ul></div>
+        <div class="strat-card"><div class="strat-card-title"><span style="color:var(--accent)">💤</span> Non-negotiables</div><ul class="strat-list"><li>6.5–7 hrs sleep minimum — memory consolidates here</li><li>30 min break after every 3-hr block</li><li>No screen after 11:30 PM</li><li>Eat every 4 hrs — brain uses 25% of glucose</li><li>Final 5 days: reduce intensity, 7+ hrs sleep</li></ul></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// STATE & STORAGE
+// ============================================================
+const STORAGE_KEY = 'neetpg2026_v3';
+let state = {
+  topics:{}, days:{}, mcqs:{}, mockScores:{},
+  notes:{global:'',mock:''},
+  examDate:'2026-08-08',
+  startDate:'2026-06-27',
+  subjects: null // overridden by default if null
+};
+
+function loadState(){
+  try{ const s=localStorage.getItem(STORAGE_KEY); if(s) state=Object.assign({},state,JSON.parse(s)); }catch(e){}
+}
+function saveState(){
+  try{ localStorage.setItem(STORAGE_KEY,JSON.stringify(state)); }catch(e){}
+}
+
+// ============================================================
+// DEFAULT SYLLABUS
+// ============================================================
+const DEFAULT_SUBJECTS = {
+  medicine:{name:'Medicine',color:'#6c8ef5',weight:14,icon:'🫀',phase:'strong',groups:[
+    {id:'med_g1',name:'Cardiology',topics:[
+      {id:'med_cvs_1',label:'Hypertension — classification, JNC guidelines, drugs',tag:'hy'},
+      {id:'med_cvs_2',label:'IHD — angina types, STEMI/NSTEMI management',tag:'hy'},
+      {id:'med_cvs_3',label:'Heart failure — systolic vs diastolic, NYHA, drugs',tag:'hy'},
+      {id:'med_cvs_4',label:'Arrhythmias — ECG patterns, management',tag:'imp'},
+      {id:'med_cvs_5',label:'Valvular heart disease — murmurs, signs',tag:'imp'},
+      {id:'med_cvs_6',label:'Infective endocarditis — Duke criteria',tag:'imp'},
+      {id:'med_cvs_7',label:'Cardiomyopathy — HCM, DCM, RCM differences',tag:'std'},
+    ]},
+    {id:'med_g2',name:'Respiratory',topics:[
+      {id:'med_resp_1',label:'COPD — GOLD staging, spirometry, management',tag:'hy'},
+      {id:'med_resp_2',label:'Bronchial asthma — GINA guidelines, drugs',tag:'hy'},
+      {id:'med_resp_3',label:'Tuberculosis — types, ATT regimes, MDR-TB',tag:'hy'},
+      {id:'med_resp_4',label:'Pneumonia — organisms by type, treatment',tag:'imp'},
+      {id:'med_resp_5',label:'Pleural effusion — Light criteria',tag:'imp'},
+      {id:'med_resp_6',label:'Pulmonary embolism — Wells criteria',tag:'imp'},
+      {id:'med_resp_7',label:'ILD — types, HRCT patterns',tag:'std'},
+    ]},
+    {id:'med_g3',name:'Gastroenterology',topics:[
+      {id:'med_gi_1',label:'Peptic ulcer — H pylori, drugs, surgery indications',tag:'hy'},
+      {id:'med_gi_2',label:'IBD — UC vs Crohn\'s differences',tag:'hy'},
+      {id:'med_gi_3',label:'Liver cirrhosis — Child-Pugh, MELD, complications',tag:'hy'},
+      {id:'med_gi_4',label:'Hepatitis — viral markers, serology patterns',tag:'hy'},
+      {id:'med_gi_5',label:'GI bleeding — upper vs lower, management',tag:'imp'},
+      {id:'med_gi_6',label:'Malabsorption — coeliac, tropical sprue',tag:'std'},
+      {id:'med_gi_7',label:'Pancreatitis — Ranson criteria, management',tag:'imp'},
+    ]},
+    {id:'med_g4',name:'Nephrology',topics:[
+      {id:'med_renal_1',label:'AKI — RIFLE/KDIGO criteria, pre/intra/post renal',tag:'hy'},
+      {id:'med_renal_2',label:'CKD — staging, complications, management',tag:'hy'},
+      {id:'med_renal_3',label:'Glomerulonephritis — nephritic vs nephrotic',tag:'hy'},
+      {id:'med_renal_4',label:'Nephrotic syndrome — types, causes',tag:'imp'},
+      {id:'med_renal_5',label:'Electrolyte disorders — Na, K, Ca, Mg',tag:'imp'},
+    ]},
+    {id:'med_g5',name:'Endocrinology',topics:[
+      {id:'med_endo_1',label:'Diabetes mellitus — classification, diagnosis, treatment',tag:'hy'},
+      {id:'med_endo_2',label:'Diabetic complications — nephropathy, neuropathy, retinopathy',tag:'hy'},
+      {id:'med_endo_3',label:'Thyroid disorders — hypo/hyper, thyroiditis',tag:'hy'},
+      {id:'med_endo_4',label:'Adrenal disorders — Cushing\'s, Addison\'s, Conn\'s',tag:'imp'},
+      {id:'med_endo_5',label:'Pituitary disorders — acromegaly, DI, hypopituitarism',tag:'imp'},
+      {id:'med_endo_6',label:'MEN syndromes — types, glands involved',tag:'std'},
+    ]},
+    {id:'med_g6',name:'Neurology',topics:[
+      {id:'med_neuro_1',label:'Stroke — ischemic vs hemorrhagic, thrombolysis',tag:'hy'},
+      {id:'med_neuro_2',label:'Epilepsy — seizure classification, AEDs',tag:'hy'},
+      {id:'med_neuro_3',label:'Meningitis — CSF analysis, organisms',tag:'hy'},
+      {id:'med_neuro_4',label:'Parkinson\'s — features, dopamine pathway, drugs',tag:'imp'},
+      {id:'med_neuro_5',label:'Dementia — Alzheimer\'s, VaD, LBD differences',tag:'imp'},
+      {id:'med_neuro_6',label:'Multiple sclerosis — MRI, McDonald criteria',tag:'imp'},
+      {id:'med_neuro_7',label:'GBS, MG, motor neuron disease',tag:'std'},
+    ]},
+    {id:'med_g7',name:'Haematology + Infections',topics:[
+      {id:'med_haem_1',label:'Anaemia — classification, lab findings',tag:'hy'},
+      {id:'med_haem_2',label:'Haemolytic anaemias — G6PD, spherocytosis, SCA',tag:'imp'},
+      {id:'med_haem_3',label:'Leukaemias — ALL/AML/CLL/CML markers',tag:'imp'},
+      {id:'med_haem_4',label:'Lymphomas — Hodgkin vs Non-Hodgkin',tag:'imp'},
+      {id:'med_haem_5',label:'Malaria — types, life cycle, drugs',tag:'hy'},
+      {id:'med_haem_6',label:'HIV/AIDS — staging, OIs, ART',tag:'hy'},
+      {id:'med_haem_7',label:'Tropical infections — dengue, typhoid, kala-azar',tag:'imp'},
+    ]},
+    {id:'med_g8',name:'Dermatology + Psychiatry',topics:[
+      {id:'med_derm_1',label:'Common skin lesions, SLE skin features',tag:'imp'},
+      {id:'med_derm_2',label:'Pemphigus vs Pemphigoid differences',tag:'std'},
+      {id:'med_psych_1',label:'Schizophrenia — Schneider criteria, antipsychotics',tag:'imp'},
+      {id:'med_psych_2',label:'Depression and anxiety — treatment',tag:'std'},
+      {id:'med_psych_3',label:'Bipolar disorder — mood stabilizers',tag:'std'},
+    ]},
+  ]},
+  surgery:{name:'Surgery',color:'#34d399',weight:11,icon:'🔪',phase:'strong',groups:[
+    {id:'surg_g1',name:'GI Surgery',topics:[
+      {id:'surg_gi_1',label:'Appendicitis — Alvarado score, management',tag:'hy'},
+      {id:'surg_gi_2',label:'Intestinal obstruction — causes, X-ray findings',tag:'hy'},
+      {id:'surg_gi_3',label:'Hernia — types, mesh repair, complications',tag:'hy'},
+      {id:'surg_gi_4',label:'Peptic ulcer — perforations, Billroth procedures',tag:'imp'},
+      {id:'surg_gi_5',label:'Colorectal cancer — Dukes staging, TME',tag:'imp'},
+    ]},
+    {id:'surg_g2',name:'Breast & Endocrine',topics:[
+      {id:'surg_breast_1',label:'Breast cancer — staging, DCIS, LCIS, treatment',tag:'hy'},
+      {id:'surg_breast_2',label:'Breast lump — FNAC, triple assessment',tag:'imp'},
+      {id:'surg_breast_3',label:'Thyroid surgery — goitre types, complications',tag:'hy'},
+      {id:'surg_breast_4',label:'Parathyroid — HPT types, management',tag:'std'},
+    ]},
+    {id:'surg_g3',name:'Urology',topics:[
+      {id:'surg_uro_1',label:'BPH — IPSS, medical vs surgical management',tag:'hy'},
+      {id:'surg_uro_2',label:'Prostate cancer — PSA, Gleason score',tag:'imp'},
+      {id:'surg_uro_3',label:'Renal cell carcinoma — Robson, paraneoplastic',tag:'imp'},
+      {id:'surg_uro_4',label:'Urolithiasis — types, ESWL, PCNL',tag:'imp'},
+    ]},
+    {id:'surg_g4',name:'Trauma & Burns',topics:[
+      {id:'surg_t1',label:'ATLS — primary survey, ABCDE',tag:'hy'},
+      {id:'surg_t2',label:'Burns — Wallace rule of 9, fluid resuscitation',tag:'hy'},
+      {id:'surg_t3',label:'Head injury — GCS, Cushing\'s reflex',tag:'imp'},
+      {id:'surg_t4',label:'Chest injury — pneumothorax, haemothorax',tag:'imp'},
+    ]},
+    {id:'surg_g5',name:'Anaesthesia & Radiology',topics:[
+      {id:'surg_anaes_1',label:'General anaesthesia — stages, agents, MAC',tag:'imp'},
+      {id:'surg_anaes_2',label:'Regional anaesthesia — spinal, epidural',tag:'imp'},
+      {id:'surg_anaes_3',label:'Muscle relaxants — depolarising vs non-dep',tag:'imp'},
+      {id:'surg_radio_1',label:'Radiology — X-ray, CT, MRI principles',tag:'std'},
+    ]},
+  ]},
+  pharmacology:{name:'Pharmacology',color:'#f87171',weight:10,icon:'💊',phase:'weak',groups:[
+    {id:'phar_g1',name:'Autonomic NS',topics:[
+      {id:'phar_ans_1',label:'Cholinergic drugs — muscarinic, nicotinic agonists/antagonists',tag:'hy'},
+      {id:'phar_ans_2',label:'Adrenergic drugs — alpha/beta agonists and antagonists',tag:'hy'},
+      {id:'phar_ans_3',label:'Anticholinesterases — reversible vs irreversible',tag:'imp'},
+      {id:'phar_ans_4',label:'Neuromuscular blockers — succinylcholine vs non-dep',tag:'imp'},
+    ]},
+    {id:'phar_g2',name:'CVS Pharmacology',topics:[
+      {id:'phar_cvs_1',label:'Antihypertensives — all classes, mechanism, side effects',tag:'hy'},
+      {id:'phar_cvs_2',label:'Antiarrhythmics — Vaughn-Williams classification',tag:'hy'},
+      {id:'phar_cvs_3',label:'Antianginals — nitrates, CCBs, beta blockers',tag:'hy'},
+      {id:'phar_cvs_4',label:'Heart failure drugs — digoxin toxicity, diuretics',tag:'imp'},
+      {id:'phar_cvs_5',label:'Anticoagulants — heparin, warfarin, DOACs',tag:'imp'},
+      {id:'phar_cvs_6',label:'Antiplatelets — aspirin, clopidogrel',tag:'imp'},
+    ]},
+    {id:'phar_g3',name:'CNS Pharmacology',topics:[
+      {id:'phar_cns_1',label:'Antiepileptics — MOA, spectrum, side effects per drug',tag:'hy'},
+      {id:'phar_cns_2',label:'Antipsychotics — typical vs atypical, EPS, NMS',tag:'hy'},
+      {id:'phar_cns_3',label:'Antidepressants — TCA, SSRI, SNRI, MAOi',tag:'hy'},
+      {id:'phar_cns_4',label:'Anxiolytics — benzodiazepines, buspirone',tag:'imp'},
+      {id:'phar_cns_5',label:'Opioids — agonists, naloxone, tolerance',tag:'imp'},
+      {id:'phar_cns_6',label:'Anaesthetic agents — inhalational, IV, ketamine',tag:'imp'},
+    ]},
+    {id:'phar_g4',name:'Antimicrobials',topics:[
+      {id:'phar_anti_1',label:'Beta-lactams — penicillins, cephalosporins, carbapenems',tag:'hy'},
+      {id:'phar_anti_2',label:'Macrolides, tetracyclines, chloramphenicol',tag:'hy'},
+      {id:'phar_anti_3',label:'Fluoroquinolones — spectrum, side effects',tag:'imp'},
+      {id:'phar_anti_4',label:'Aminoglycosides — nephro/ototoxicity',tag:'imp'},
+      {id:'phar_anti_5',label:'Antifungals — azoles, amphotericin B',tag:'imp'},
+      {id:'phar_anti_6',label:'Antitubercular drugs — 1st line, toxicities',tag:'hy'},
+    ]},
+    {id:'phar_g5',name:'Endocrine + Misc',topics:[
+      {id:'phar_endo_1',label:'Insulin types — onset, peak, duration',tag:'hy'},
+      {id:'phar_endo_2',label:'Oral antidiabetics — all classes, mechanism',tag:'hy'},
+      {id:'phar_endo_3',label:'Thyroid drugs — PTU vs carbimazole',tag:'imp'},
+      {id:'phar_endo_4',label:'Corticosteroids — potency, side effects',tag:'imp'},
+      {id:'phar_endo_5',label:'NSAIDs — COX selectivity, side effects',tag:'hy'},
+      {id:'phar_endo_6',label:'Cancer chemotherapy — agents, side effects',tag:'hy'},
+    ]},
+  ]},
+  pathology:{name:'Pathology',color:'#a78bfa',weight:10,icon:'🔬',phase:'strong',groups:[
+    {id:'path_g1',name:'General Pathology',topics:[
+      {id:'path_gen_1',label:'Cell injury — reversible, irreversible, apoptosis vs necrosis',tag:'hy'},
+      {id:'path_gen_2',label:'Inflammation — acute vs chronic, mediators',tag:'hy'},
+      {id:'path_gen_3',label:'Haemodynamic disorders — oedema, thrombosis, embolism',tag:'hy'},
+      {id:'path_gen_4',label:'Neoplasia — benign vs malignant, grading vs staging',tag:'hy'},
+      {id:'path_gen_5',label:'Carcinogenesis — oncogenes, tumour suppressor genes',tag:'imp'},
+      {id:'path_gen_6',label:'Tumour markers — CEA, AFP, CA-125, PSA',tag:'imp'},
+      {id:'path_gen_7',label:'Hypersensitivity — Type I-IV with examples',tag:'hy'},
+    ]},
+    {id:'path_g2',name:'CVS + Respiratory',topics:[
+      {id:'path_cvs_1',label:'Atherosclerosis — pathogenesis, complications',tag:'hy'},
+      {id:'path_cvs_2',label:'Myocardial infarction — zones, timeline, enzymes',tag:'hy'},
+      {id:'path_resp_1',label:'Pneumonia — lobar, broncho, interstitial',tag:'imp'},
+      {id:'path_resp_2',label:'Lung tumors — histological types',tag:'imp'},
+    ]},
+    {id:'path_g3',name:'GI + Liver',topics:[
+      {id:'path_gi_1',label:'GI tumors — adenoma-carcinoma sequence',tag:'imp'},
+      {id:'path_gi_2',label:'IBD — histological differences',tag:'imp'},
+      {id:'path_gi_3',label:'Liver pathology — hepatitis patterns, cirrhosis',tag:'hy'},
+      {id:'path_gi_4',label:'HCC — risk factors, AFP',tag:'imp'},
+    ]},
+    {id:'path_g4',name:'Haematopathology',topics:[
+      {id:'path_haem_1',label:'Anaemia — morphological classification, smear',tag:'hy'},
+      {id:'path_haem_2',label:'Leukaemia — FAB classification, cytochemistry',tag:'hy'},
+      {id:'path_haem_3',label:'Lymphoma — Reed-Sternberg, REAL classification',tag:'imp'},
+      {id:'path_haem_4',label:'Coagulation cascade — disorders, lab tests',tag:'std'},
+    ]},
+    {id:'path_g5',name:'Kidney + Bone',topics:[
+      {id:'path_renal_1',label:'Glomerulonephritis — light/EM/IF patterns',tag:'hy'},
+      {id:'path_renal_2',label:'Renal tumors — Wilms, RCC, TCC',tag:'imp'},
+      {id:'path_bone_1',label:'Bone tumors — age, location, X-ray features',tag:'imp'},
+    ]},
+  ]},
+  microbiology:{name:'Microbiology',color:'#2dd4bf',weight:9,icon:'🦠',phase:'strong',groups:[
+    {id:'micro_g1',name:'Bacteriology',topics:[
+      {id:'micro_bact_1',label:'Staphylococcus — aureus toxins, MRSA',tag:'hy'},
+      {id:'micro_bact_2',label:'Streptococcus — groups, ASO titre, RF',tag:'hy'},
+      {id:'micro_bact_3',label:'Gram negative rods — E.coli, Salmonella, Shigella',tag:'hy'},
+      {id:'micro_bact_4',label:'Mycobacteria — TB staining, culture',tag:'hy'},
+      {id:'micro_bact_5',label:'Clostridia — tetanus, botulism, gas gangrene',tag:'imp'},
+      {id:'micro_bact_6',label:'Intracellular — Rickettsia, Chlamydia, Legionella',tag:'imp'},
+    ]},
+    {id:'micro_g2',name:'Virology',topics:[
+      {id:'micro_viro_1',label:'Hepatitis viruses — A/B/C/D/E markers',tag:'hy'},
+      {id:'micro_viro_2',label:'HIV — structure, CD4, OIs',tag:'hy'},
+      {id:'micro_viro_3',label:'Herpes viruses — HSV, VZV, EBV, CMV',tag:'imp'},
+      {id:'micro_viro_4',label:'Arboviruses — dengue, chikungunya, JE',tag:'imp'},
+    ]},
+    {id:'micro_g3',name:'Parasitology + Mycology',topics:[
+      {id:'micro_para_1',label:'Malaria — Plasmodium types, life cycle',tag:'hy'},
+      {id:'micro_para_2',label:'Amoebiasis — intestinal vs extraintestinal',tag:'imp'},
+      {id:'micro_para_3',label:'Helminthic infections — roundworm, hookworm',tag:'imp'},
+      {id:'micro_myco_1',label:'Candida, Aspergillus, Cryptococcus',tag:'imp'},
+    ]},
+    {id:'micro_g4',name:'Immunology',topics:[
+      {id:'micro_imm_1',label:'Innate vs adaptive immunity — cells, cytokines',tag:'hy'},
+      {id:'micro_imm_2',label:'Antibody — classes, complement, Fc region',tag:'imp'},
+      {id:'micro_imm_3',label:'MHC — Class I vs II, antigen presentation',tag:'imp'},
+      {id:'micro_imm_4',label:'Vaccines — live, killed, toxoid, types',tag:'imp'},
+      {id:'micro_imm_5',label:'Sterilization — methods, autoclave, indicators',tag:'std'},
+    ]},
+  ]},
+  obg:{name:'OBG',color:'#f472b6',weight:8,icon:'🤱',phase:'moderate',groups:[
+    {id:'obg_g1',name:'Obstetrics',topics:[
+      {id:'obg_obs_1',label:'Normal labour — stages, Bishop score, partograph',tag:'hy'},
+      {id:'obg_obs_2',label:'APH — placenta previa vs abruption',tag:'hy'},
+      {id:'obg_obs_3',label:'PIH/Pre-eclampsia — criteria, management',tag:'hy'},
+      {id:'obg_obs_4',label:'PPH — 4 T\'s, management, oxytocics',tag:'hy'},
+      {id:'obg_obs_5',label:'Malpresentations — breech types, management',tag:'imp'},
+      {id:'obg_obs_6',label:'LSCS — indications, technique',tag:'imp'},
+      {id:'obg_obs_7',label:'Preterm labour — tocolytics, steroids',tag:'imp'},
+      {id:'obg_obs_8',label:'Ectopic pregnancy — types, management',tag:'hy'},
+    ]},
+    {id:'obg_g2',name:'Gynaecology',topics:[
+      {id:'obg_gyn_1',label:'Amenorrhoea — primary vs secondary, workup',tag:'hy'},
+      {id:'obg_gyn_2',label:'AUB — PALM-COEIN classification',tag:'imp'},
+      {id:'obg_gyn_3',label:'Cervical cancer — FIGO staging, HPV, Pap smear',tag:'hy'},
+      {id:'obg_gyn_4',label:'Ovarian tumors — FIGO, Sertoli-Leydig',tag:'hy'},
+      {id:'obg_gyn_5',label:'Fibroids — types, management, GnRH',tag:'imp'},
+      {id:'obg_gyn_6',label:'PCOS — Rotterdam criteria, treatment',tag:'imp'},
+      {id:'obg_gyn_7',label:'Gestational trophoblastic disease — mole, chorioCA',tag:'imp'},
+      {id:'obg_gyn_8',label:'Contraception — OCP, IUD, sterilization',tag:'imp'},
+    ]},
+  ]},
+  ophthalmology:{name:'Ophthalmology',color:'#fbbf24',weight:7,icon:'👁️',phase:'weak',groups:[
+    {id:'oph_g1',name:'Anterior Segment',topics:[
+      {id:'oph_ant_1',label:'Corneal ulcer — bacterial, viral, fungal',tag:'hy'},
+      {id:'oph_ant_2',label:'Cataract — types, PHACO technique',tag:'hy'},
+      {id:'oph_ant_3',label:'IOL power — SRK-T formula, biometry',tag:'imp'},
+      {id:'oph_ant_4',label:'Conjunctivitis — bacterial vs viral vs allergic',tag:'imp'},
+      {id:'oph_ant_5',label:'Trachoma — stages, WHO grading',tag:'std'},
+    ]},
+    {id:'oph_g2',name:'Glaucoma',topics:[
+      {id:'oph_glau_1',label:'IOP — normal values, tonometry methods',tag:'hy'},
+      {id:'oph_glau_2',label:'POAG — cup:disc ratio, VF defects',tag:'hy'},
+      {id:'oph_glau_3',label:'PACG — acute attack, emergency treatment',tag:'hy'},
+      {id:'oph_glau_4',label:'Glaucoma drugs — all classes, mechanism',tag:'hy'},
+    ]},
+    {id:'oph_g3',name:'Retina',topics:[
+      {id:'oph_ret_1',label:'Diabetic retinopathy — ETDRS grading, CSME',tag:'hy'},
+      {id:'oph_ret_2',label:'CRVO vs CRAO — features, management',tag:'hy'},
+      {id:'oph_ret_3',label:'AMD — dry vs wet, anti-VEGF',tag:'imp'},
+      {id:'oph_ret_4',label:'Retinal detachment — types, surgery',tag:'imp'},
+      {id:'oph_ret_5',label:'Retinoblastoma — genetics, leucocoria',tag:'imp'},
+    ]},
+    {id:'oph_g4',name:'Neuro-ophthalmology',topics:[
+      {id:'oph_neuro_1',label:'Visual field defects — site of lesion',tag:'hy'},
+      {id:'oph_neuro_2',label:'Pupil — RAPD, Horner\'s, Argyll Robertson',tag:'hy'},
+      {id:'oph_neuro_3',label:'CN palsies — 3rd, 4th, 6th nerve features',tag:'imp'},
+      {id:'oph_neuro_4',label:'Papilloedema vs papillitis',tag:'imp'},
+      {id:'oph_neuro_5',label:'Refraction — myopia, hypermetropia, presbyopia',tag:'hy'},
+    ]},
+  ]},
+  paediatrics:{name:'Paediatrics',color:'#34d399',weight:7,icon:'👶',phase:'moderate',groups:[
+    {id:'paed_g1',name:'Neonatology',topics:[
+      {id:'paed_neo_1',label:'APGAR score — components, interpretation',tag:'hy'},
+      {id:'paed_neo_2',label:'Neonatal jaundice — physiological vs pathological',tag:'hy'},
+      {id:'paed_neo_3',label:'RDS — surfactant, CPAP, antenatal steroids',tag:'imp'},
+      {id:'paed_neo_4',label:'Neonatal sepsis — organisms, early vs late onset',tag:'imp'},
+    ]},
+    {id:'paed_g2',name:'Growth & Development',topics:[
+      {id:'paed_dev_1',label:'Developmental milestones — motor, speech, social',tag:'hy'},
+      {id:'paed_dev_2',label:'PEM — kwashiorkor vs marasmus',tag:'hy'},
+      {id:'paed_dev_3',label:'Micronutrient deficiencies — Vit A, D, Iron, Zinc',tag:'imp'},
+    ]},
+    {id:'paed_g3',name:'Paediatric Medicine',topics:[
+      {id:'paed_med_1',label:'Pneumonia — WHO severity, organisms by age',tag:'hy'},
+      {id:'paed_med_2',label:'Diarrhoea — ORS, Plan A/B/C',tag:'hy'},
+      {id:'paed_med_3',label:'Congenital heart disease — acyanotic vs cyanotic, TOF',tag:'hy'},
+      {id:'paed_med_4',label:'Rheumatic fever — Jones criteria, prophylaxis',tag:'imp'},
+      {id:'paed_med_5',label:'Immunisation schedule — UIP, IAP, cold chain',tag:'hy'},
+      {id:'paed_med_6',label:'Childhood cancers — ALL, Wilms\', neuroblastoma',tag:'std'},
+    ]},
+  ]},
+  anatomy:{name:'Anatomy',color:'#6c8ef5',weight:6,icon:'🦴',phase:'strong',groups:[
+    {id:'anat_g1',name:'Gross Anatomy',topics:[
+      {id:'anat_gross_1',label:'Upper limb — brachial plexus, nerve injuries',tag:'hy'},
+      {id:'anat_gross_2',label:'Lower limb — femoral triangle, compartments',tag:'imp'},
+      {id:'anat_gross_3',label:'Thorax — mediastinum, lung roots',tag:'imp'},
+      {id:'anat_gross_4',label:'Abdomen — peritoneum, inguinal canal',tag:'hy'},
+    ]},
+    {id:'anat_g2',name:'Neuroanatomy',topics:[
+      {id:'anat_neuro_1',label:'Brain — areas, blood supply, circle of Willis',tag:'hy'},
+      {id:'anat_neuro_2',label:'Spinal cord — tracts, lesions, blood supply',tag:'hy'},
+      {id:'anat_neuro_3',label:'Cranial nerves — nuclei, foramen, clinical palsy',tag:'hy'},
+      {id:'anat_neuro_4',label:'Ventricular system, CSF pathways',tag:'std'},
+    ]},
+    {id:'anat_g3',name:'Histology + Embryology',topics:[
+      {id:'anat_hist_1',label:'Epithelium types — simple, stratified, transitional',tag:'imp'},
+      {id:'anat_embry_1',label:'Embryology — germ layer derivatives, critical periods',tag:'hy'},
+      {id:'anat_embry_2',label:'Cardiac embryology — septation, congenital defects',tag:'imp'},
+    ]},
+  ]},
+  physiology:{name:'Physiology',color:'#2dd4bf',weight:6,icon:'⚡',phase:'strong',groups:[
+    {id:'phys_g1',name:'CVS Physiology',topics:[
+      {id:'phys_cvs_1',label:'Cardiac cycle — P-V loop, Wiggers diagram',tag:'hy'},
+      {id:'phys_cvs_2',label:'Action potential — cardiac types, ion channels',tag:'hy'},
+      {id:'phys_cvs_3',label:'Cardiac output — Fick principle, measurement',tag:'imp'},
+      {id:'phys_cvs_4',label:'ECG — intervals, axis, BBB',tag:'hy'},
+    ]},
+    {id:'phys_g2',name:'Respiratory Physiology',topics:[
+      {id:'phys_resp_1',label:'Lung volumes — FEV1/FVC, obstructive vs restrictive',tag:'hy'},
+      {id:'phys_resp_2',label:'O2-Hb dissociation curve — shifts',tag:'hy'},
+      {id:'phys_resp_3',label:'V/Q ratio — dead space, shunt',tag:'imp'},
+    ]},
+    {id:'phys_g3',name:'Renal + Endocrine',topics:[
+      {id:'phys_renal_1',label:'GFR — measurement, autoregulation',tag:'hy'},
+      {id:'phys_renal_2',label:'Countercurrent mechanism — concentrating urine',tag:'imp'},
+      {id:'phys_renal_3',label:'Acid-base — Henderson-Hasselbalch, compensation',tag:'hy'},
+      {id:'phys_endo_1',label:'HPO axis — feedback, hormones',tag:'hy'},
+      {id:'phys_endo_2',label:'GI hormones — gastrin, secretin, CCK',tag:'std'},
+    ]},
+  ]},
+  biochemistry:{name:'Biochemistry',color:'#fbbf24',weight:5,icon:'🧪',phase:'moderate',groups:[
+    {id:'bioc_g1',name:'Metabolism',topics:[
+      {id:'bioc_met_1',label:'Glycolysis — steps, enzymes, energy yield',tag:'hy'},
+      {id:'bioc_met_2',label:'TCA cycle — enzymes, regulation',tag:'hy'},
+      {id:'bioc_met_3',label:'Oxidative phosphorylation — ETC, uncouplers',tag:'imp'},
+      {id:'bioc_met_4',label:'Gluconeogenesis — substrates, key enzymes',tag:'imp'},
+      {id:'bioc_met_5',label:'HMP shunt — G6PD, NADPH',tag:'hy'},
+      {id:'bioc_met_6',label:'Fatty acid synthesis and beta-oxidation',tag:'imp'},
+      {id:'bioc_met_7',label:'Urea cycle — steps, hyperammonaemia',tag:'imp'},
+    ]},
+    {id:'bioc_g2',name:'Molecular Biology',topics:[
+      {id:'bioc_mol_1',label:'DNA replication — enzymes, Okazaki, proofreading',tag:'hy'},
+      {id:'bioc_mol_2',label:'Transcription + translation — RNA pol, ribosomes',tag:'imp'},
+      {id:'bioc_mol_3',label:'PCR, restriction enzymes, recombinant DNA',tag:'imp'},
+    ]},
+    {id:'bioc_g3',name:'Clinical Biochemistry',topics:[
+      {id:'bioc_clin_1',label:'Fat-soluble vitamins A, D, E, K — deficiencies',tag:'hy'},
+      {id:'bioc_clin_2',label:'Water-soluble vitamins B complex, C',tag:'hy'},
+      {id:'bioc_clin_3',label:'Inborn errors — PKU, alkaptonuria, maple syrup',tag:'imp'},
+      {id:'bioc_clin_4',label:'Enzyme kinetics — Km, Vmax, inhibition',tag:'imp'},
+    ]},
+  ]},
+  misc:{name:'Misc',color:'#a78bfa',weight:6,icon:'📚',phase:'strong',groups:[
+    {id:'misc_g1',name:'Forensic Medicine',topics:[
+      {id:'fmt_1',label:'IPC sections — 302, 304, 304A, 376',tag:'hy'},
+      {id:'fmt_2',label:'Post-mortem changes — algor, rigor, livor mortis',tag:'hy'},
+      {id:'fmt_3',label:'Hanging vs strangulation differences',tag:'imp'},
+      {id:'fmt_4',label:'Toxicology — OP, CO, arsenic poisoning',tag:'imp'},
+    ]},
+    {id:'misc_g2',name:'PSM / Community Medicine',topics:[
+      {id:'psm_1',label:'Epidemiology — incidence, prevalence, attack rate',tag:'hy'},
+      {id:'psm_2',label:'Study designs — RCT, cohort, case-control',tag:'hy'},
+      {id:'psm_3',label:'Biostatistics — sensitivity, specificity, PPV, NPV',tag:'hy'},
+      {id:'psm_4',label:'National programmes — NHM, Ayushman Bharat, RCH',tag:'imp'},
+      {id:'psm_5',label:'Nutrition — PEM classification, Vitamin A programme',tag:'imp'},
+    ]},
+  ]},
+};
+
+// ============================================================
+// GET SUBJECTS (merged with any user edits saved in state)
+// ============================================================
+function getSubjects(){
+  if(state.subjects) return state.subjects;
+  return DEFAULT_SUBJECTS;
+}
+
+// ============================================================
+// MOCKS DATA
+// ============================================================
+const MOCK_TOTAL=800;
+const MOCKS=[
+  {id:'M1',num:1,title:'Baseline diagnostic',target:370,desc:'Identify major knowledge gaps'},
+  {id:'M2',num:2,title:'Mid Rev 1 check',target:420,desc:'Compare with M1, track improvement'},
+  {id:'M3',num:3,title:'Rev 1 closure',target:460,desc:'Significant jump expected'},
+  {id:'M4',num:4,title:'Rev 2 opener',target:500,desc:'Validate Rev 2 retention'},
+  {id:'M5',num:5,title:'Speed & accuracy',target:530,desc:'Focus on time management'},
+  {id:'M6',num:6,title:'Grand Blitz 1',target:560,desc:'Strict exam conditions'},
+  {id:'M7',num:7,title:'Grand Blitz 2',target:600,desc:'Final weak zone identification'},
+  {id:'M8',num:8,title:'Final confidence mock',target:640,desc:'Best score ever target'},
+];
+
+// ============================================================
+// SCHEDULE GENERATION
+// ============================================================
+const PHASE_PLAN=[
+  {pct:0,  phase:'Rev 1', label:'Revision 1', chipCls:'chip-blue'},
+  {pct:60, phase:'Rev 2', label:'Revision 2', chipCls:'chip-green'},
+  {pct:83, phase:'Mock Blitz', label:'Mock Blitz', chipCls:'chip-amber'},
+  {pct:93, phase:'Final Sprint', label:'Final Sprint', chipCls:'chip-red'},
+];
+
+// Rev 1 subject rotation
+const REV1_ROTATION=[
+  ['Medicine (CVS, Resp)','Pharmacology (CVS, ANS)'],
+  ['Medicine (GI, Nephro)','Ophthalmology Pt 1'],
+  ['Medicine (Endo, Neuro)','Pharmacology (CNS)'],
+  ['Medicine (Haem, Infect)','Ophthalmology Pt 2'],
+  ['Surgery (GI, Abdomen)','Pathology (General)'],
+  ['Surgery (Breast, Endo)','Pharmacology (Antimicrobials)'],
+  ['Surgery (Urology, Trauma)','Pathology (Systemic)'],
+  ['Microbiology (Bacteriology)','Pharmacology (Chemotherapy)'],
+  ['Microbiology (Virology, Para)','Ophthalmology Pt 3'],
+  ['OBG (Obstetrics)','Biochemistry'],
+  ['OBG (Gynaecology)','Pharmacology (Endocrine)'],
+  ['Paediatrics','Ophthalmology Final'],
+  ['Anatomy','Pharmacology (HY Misc)'],
+  ['Physiology','Pathology (Blood, Renal)'],
+  ['Dermatology + Psychiatry + FMT','PSM / Biostatistics'],
+];
+const REV2_ROTATION=[
+  ['Medicine rapid rev — one-liners only','Pharmacology rapid pass'],
+  ['Surgery speed rev','Pathology tables only'],
+  ['Pharmacology full rapid rev','Ophthalmology HY only'],
+  ['Microbiology rapid','OBG tables + landmarks'],
+  ['Paediatrics rapid','Anatomy + Physiology speed'],
+  ['Biochemistry + Misc rapid','All subject MCQ sprint'],
+  ['Error subjects revisit','Integrated MCQ day'],
+];
+
+function generateSchedule(){
+  const start=new Date(state.startDate+'T00:00:00');
+  const exam=new Date(state.examDate+'T00:00:00');
+  const totalDays=Math.max(7,Math.ceil((exam-start)/(1000*60*60*24)));
+  const schedule=[];
+
+  for(let i=0;i<totalDays;i++){
+    const d=new Date(start);
+    d.setDate(d.getDate()+i);
+    const dateStr=d.toISOString().split('T')[0];
+    const pct=(i/totalDays)*100;
+    const dow=d.getDay(); // 0=Sun
+    const isWeekend=dow===0||dow===6;
+
+    // determine phase
+    let phase=PHASE_PLAN[0];
+    for(let p=PHASE_PLAN.length-1;p>=0;p--){
+      if(pct>=PHASE_PLAN[p].pct){phase=PHASE_PLAN[p];break;}
+    }
+
+    // determine subjects
+    let subjects=[];
+    let mcq=600;
+    let note='';
+    let isMock=false;
+
+    if(phase.phase==='Final Sprint'){
+      subjects=['High-yield tables only — all subjects','Light 50Q mini-mock'];
+      mcq=300;
+      note='Final sprint — no new topics';
+    } else if(phase.phase==='Mock Blitz'){
+      const mockBlitzDay=Math.floor((pct-83)/((100-83)/totalDays));
+      if(isWeekend||mockBlitzDay%2===0){
+        const mn=Math.min(8,Math.ceil((i-(totalDays*0.83))/2)+6);
+        subjects=['🎯 Full Mock Test M'+mn,'3-hr analysis session'];
+        mcq=0; isMock=true;
+        note='Mock day — strict exam conditions';
+      } else {
+        subjects=['Targeted revision from mock errors','Weak area sprint'];
+        mcq=500;
+      }
+    } else if(phase.phase==='Rev 2'){
+      if(isWeekend){
+        const mn=Math.min(5,Math.ceil(i-(totalDays*0.6)/totalDays*4)+4);
+        subjects=['🎯 Full Mock Test M'+mn,'Score review + error log'];
+        mcq=0; isMock=true;
+        note='Mock weekend';
+      } else {
+        const ri=Math.floor((i-(totalDays*0.60))/1)%REV2_ROTATION.length;
+        subjects=REV2_ROTATION[ri];
+        mcq=850;
+      }
+    } else { // Rev 1
+      if(isWeekend&&dow===0){
+        // Sunday mock in Rev 1
+        const mockNum=Math.ceil((i/7));
+        if(mockNum<=3){
+          subjects=['🎯 Full Mock Test M'+mockNum,'Error analysis + revision'];
+          mcq=0; isMock=true;
+          note='Mock day — analyse every wrong answer';
+        } else {
+          const ri=Math.floor(i/2)%REV1_ROTATION.length;
+          subjects=REV1_ROTATION[ri];
+          mcq=600;
+        }
+      } else {
+        const ri=Math.floor(i/2)%REV1_ROTATION.length;
+        subjects=REV1_ROTATION[ri%REV1_ROTATION.length];
+        mcq=600;
+      }
+    }
+
+    schedule.push({date:dateStr,dateObj:d,phase:phase.label,chipCls:phase.chipCls,subjects,mcq,note,isMock});
+  }
+  return schedule;
+}
+
+function generateAndRenderSchedule(){
+  renderSchedule();
+  renderTodaysPlan();
+  updateDayStats();
+  showToast('Schedule generated!');
+}
+
+function onExamDateChange(val){
+  state.examDate=val;
+  saveState();
+  updateCountdown();
+  updatePhaseIndicator();
+}
+function onStartDateChange(val){
+  state.startDate=val;
+  saveState();
+}
+
+// ============================================================
+// RENDER SCHEDULE
+// ============================================================
+function renderSchedule(){
+  const container=document.getElementById('schedule-container');
+  if(!container)return;
+  const schedule=generateSchedule();
+  if(!schedule.length){container.innerHTML='<div style="padding:20px;color:var(--text3)">Set exam date and start date above, then click Generate.</div>';return;}
+
+  const todayStr=new Date().toISOString().split('T')[0];
+  let html='<table class="sched-table"><thead><tr><th>Date</th><th>Phase</th><th>Subjects / Focus</th><th>MCQs</th><th>Notes</th><th style="text-align:center">Done</th></tr></thead><tbody>';
+
+  schedule.forEach(day=>{
+    const isToday=day.date===todayStr;
+    const isDone=state.days[day.date];
+    const dateLabel=day.dateObj.toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'});
+    const subHtml=day.subjects.map(s=>`<span class="sday-chip ${day.isMock?'chip-amber':'chip-blue'}">${s}</span>`).join('');
+    const dayNote=state.schedNotes&&state.schedNotes[day.date]?state.schedNotes[day.date]:'';
+    html+=`<tr${isToday?' class="today-row"':''}${isDone?' style="opacity:0.5"':''}>
+      <td style="white-space:nowrap;font-weight:600;color:${isToday?'var(--accent)':'var(--text)'}">${dateLabel}${isToday?' 📍':''}</td>
+      <td><span class="sday-chip ${day.chipCls}">${day.phase}</span></td>
+      <td>${subHtml}</td>
+      <td style="font-size:12px;color:var(--text3)">${day.mcq>0?day.mcq+'Q':'—'}</td>
+      <td><input class="sched-notes-input" placeholder="add note..." value="${dayNote.replace(/"/g,'&quot;')}" oninput="saveSchedNote('${day.date}',this.value)"/></td>
+      <td style="text-align:center"><div class="day-check${isDone?' checked':''}" id="daychk-${day.date}" onclick="toggleDay('${day.date}')"></div></td>
+    </tr>`;
+  });
+  html+='</tbody></table>';
+  container.innerHTML=html;
+}
+
+function saveSchedNote(dateStr,val){
+  if(!state.schedNotes)state.schedNotes={};
+  state.schedNotes[dateStr]=val;
+  saveState();
+}
+
+// ============================================================
+// SUBJECT PAGE RENDERING WITH FULL EDIT MODE
+// ============================================================
+let editMode={}; // subId: boolean
+
+function renderSubjectPage(subId,force){
+  const page=document.getElementById('page-'+subId);
+  if(!page||(page.innerHTML.trim()&&!force))return;
+  const subjects=getSubjects();
+  const sub=subjects[subId];
+  if(!sub)return;
+
+  let totalTopics=0;
+  sub.groups.forEach(g=>totalTopics+=g.topics.length);
+  const isEdit=editMode[subId]||false;
+
+  const phaseColor=sub.phase==='weak'?'var(--red)':sub.phase==='moderate'?'var(--amber)':'var(--green)';
+  const phaseLabel=sub.phase==='weak'?'🔴 Priority boost':sub.phase==='moderate'?'🟡 Needs attention':'🟢 Strong area';
+
+  let html=`
+  <div class="section-hdr">
+    <div class="section-icon" style="background:${sub.color}22;font-size:22px">${sub.icon}</div>
+    <div><div class="section-title">${sub.name}</div>
+    <div class="section-sub">${sub.weight}% weightage · ${phaseLabel} · ${totalTopics} topics</div></div>
+    <div style="margin-left:auto;text-align:right">
+      <div style="font-size:26px;font-weight:800;color:${sub.color}" id="hdr-pct-${subId}">0%</div>
+      <div style="font-size:11px;color:var(--text3)">completed</div>
+    </div>
+  </div>
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius2);padding:12px 16px;margin-bottom:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+    <div style="flex:1;min-width:160px">
+      <div style="font-size:11px;color:var(--text3);margin-bottom:5px">PROGRESS</div>
+      <div class="prog-bar-wrap" style="height:8px"><div class="prog-bar" id="sbar-${subId}" style="width:0%;background:${sub.color}"></div></div>
+    </div>
+    <div style="font-size:13px;color:var(--text2)" id="scount-${subId}">0/${totalTopics}</div>
+    <div style="padding:6px 12px;background:${sub.color}22;border-radius:6px;font-size:12px;font-weight:600;color:${sub.color}" id="spct-${subId}">0%</div>
+    <button class="btn-sm ${isEdit?'btn-amber':'btn-blue'}" onclick="toggleEditMode('${subId}')">${isEdit?'✓ Done editing':'✏ Edit syllabus'}</button>
+    <button class="btn-sm btn-green" onclick="markAllDone('${subId}')">✓ All done</button>
+    <button class="btn-sm btn-ghost" onclick="clearAllSub('${subId}')">✗ Clear</button>
+  </div>`;
+
+  if(isEdit){
+    html+=`<div class="edit-mode-bar">
+      <span class="edit-badge">Edit mode</span>
+      <span style="font-size:12px;color:var(--text2);flex:1">Click ✏ on any topic or group to rename · 🗑 to delete · Use + buttons to add new items</span>
+    </div>`;
+  }
+
+  sub.groups.forEach((group,gi)=>{
+    html+=`<div class="subject-block" id="grp-${subId}-${gi}">
+      <div class="subject-header" onclick="toggleGroup('${subId}','${gi}')">
+        <div class="subject-color-bar" style="background:${sub.color}"></div>
+        <div class="subject-info">`;
+
+    if(isEdit){
+      html+=`<input class="group-name-edit" value="${escHtml(group.name)}" onchange="renameGroup('${subId}','${gi}',this.value)" onclick="event.stopPropagation()" style="width:180px"/>`;
+    } else {
+      html+=`<div class="subject-name">${escHtml(group.name)}</div>`;
+    }
+
+    html+=`<div class="subject-meta">${group.topics.length} topics</div>
+        </div>
+        <div class="subject-stats">
+          <span style="font-size:11px;color:var(--text3)" id="grp-count-${subId}-${gi}">0/${group.topics.length}</span>`;
+
+    if(isEdit){
+      html+=`<button class="icon-btn icon-btn-del" onclick="event.stopPropagation();deleteGroup('${subId}','${gi}')" title="Delete group">🗑</button>`;
+    }
+
+    html+=`<span class="chevron">▼</span></div>
+      </div>
+      <div class="topic-list" style="display:none" id="grp-body-${subId}-${gi}">`;
+
+    group.topics.forEach((topic,ti)=>{
+      const s=state.topics[topic.id]||'none';
+      const tagClass=topic.tag==='hy'?'tag-hy':topic.tag==='imp'?'tag-imp':'tag-std';
+      const tagText=topic.tag==='hy'?'HY':topic.tag==='imp'?'IMP':'STD';
+
+      if(isEdit){
+        html+=`<div class="topic-item" style="padding:5px 10px;background:rgba(255,255,255,0.01);border-radius:6px">
+          <input class="topic-label-edit" value="${escHtml(topic.label)}" onchange="renameTopic('${subId}','${gi}','${ti}',this.value)" style="flex:1"/>
+          <select class="tag-select" onchange="changeTopicTag('${subId}','${gi}','${ti}',this.value)">
+            <option value="hy"${topic.tag==='hy'?' selected':''}>HY</option>
+            <option value="imp"${topic.tag==='imp'?' selected':''}>IMP</option>
+            <option value="std"${topic.tag==='std'?' selected':''}>STD</option>
+          </select>
+          <button class="icon-btn icon-btn-del" onclick="deleteTopic('${subId}','${gi}','${ti}')" title="Delete">🗑</button>
+        </div>`;
+      } else {
+        html+=`<div class="topic-item" style="padding:5px 16px">
+          <div class="topic-check${s==='done'?' checked':s==='partial'?' partial':''}" id="chk-${topic.id}" onclick="toggleTopic('${topic.id}')"></div>
+          <div class="topic-label${s==='done'?' checked':''}" id="lbl-${topic.id}" onclick="toggleTopic('${topic.id}')">${escHtml(topic.label)}</div>
+          <span class="topic-tag ${tagClass}">${tagText}</span>
+        </div>`;
+      }
+    });
+
+    if(isEdit){
+      html+=`<div class="add-topic-row">
+        <input class="add-topic-input" id="new-topic-${subId}-${gi}" placeholder="New topic label..." onkeydown="if(event.key==='Enter')addTopic('${subId}','${gi}')"/>
+        <select class="tag-select" id="new-topic-tag-${subId}-${gi}">
+          <option value="hy">HY</option><option value="imp" selected>IMP</option><option value="std">STD</option>
+        </select>
+        <button class="btn-sm btn-green" onclick="addTopic('${subId}','${gi}')">+ Add</button>
+      </div>`;
+    }
+
+    html+=`</div></div>`;
+  });
+
+  if(isEdit){
+    html+=`<div class="add-group-row">
+      <div style="font-size:11px;color:var(--green);font-weight:600;margin-bottom:6px">+ Add new group</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input class="add-group-input" id="new-group-${subId}" placeholder="Group name (e.g. Recent Advances, High-yield Tables)..." style="margin:0"/>
+        <button class="btn-sm btn-green" onclick="addGroup('${subId}')">Add Group</button>
+      </div>
+    </div>`;
+  }
+
+  page.innerHTML=html;
+  updateGroupCounts(subId);
+}
+
+function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+// ============================================================
+// EDIT MODE ACTIONS
+// ============================================================
+function toggleEditMode(subId){
+  editMode[subId]=!editMode[subId];
+  renderSubjectPage(subId,true);
+  showToast(editMode[subId]?'Edit mode ON — modify your syllabus':'Changes saved');
+}
+
+function ensureSubjectsCopy(){
+  if(!state.subjects){
+    state.subjects=JSON.parse(JSON.stringify(DEFAULT_SUBJECTS));
+  }
+}
+
+function genId(){return 'u_'+Math.random().toString(36).substr(2,9);}
+
+function addTopic(subId,gi){
+  ensureSubjectsCopy();
+  const inp=document.getElementById('new-topic-'+subId+'-'+gi);
+  const tagSel=document.getElementById('new-topic-tag-'+subId+'-'+gi);
+  const label=(inp?inp.value:'').trim();
+  if(!label){showToast('Enter a topic name');return;}
+  const tag=tagSel?tagSel.value:'imp';
+  state.subjects[subId].groups[gi].topics.push({id:genId(),label,tag});
+  saveState();
+  renderSubjectPage(subId,true);
+  updateSubjectProgress();
+  showToast('Topic added');
+}
+
+function deleteTopic(subId,gi,ti){
+  if(!confirm('Delete this topic?'))return;
+  ensureSubjectsCopy();
+  const t=state.subjects[subId].groups[gi].topics[ti];
+  if(t)delete state.topics[t.id];
+  state.subjects[subId].groups[gi].topics.splice(ti,1);
+  saveState();
+  renderSubjectPage(subId,true);
+  updateSubjectProgress();
+  showToast('Topic deleted');
+}
+
+function renameTopic(subId,gi,ti,val){
+  ensureSubjectsCopy();
+  state.subjects[subId].groups[gi].topics[ti].label=val.trim();
+  saveState();
+}
+
+function changeTopicTag(subId,gi,ti,val){
+  ensureSubjectsCopy();
+  state.subjects[subId].groups[gi].topics[ti].tag=val;
+  saveState();
+}
+
+function addGroup(subId){
+  ensureSubjectsCopy();
+  const inp=document.getElementById('new-group-'+subId);
+  const name=(inp?inp.value:'').trim();
+  if(!name){showToast('Enter a group name');return;}
+  state.subjects[subId].groups.push({id:genId(),name,topics:[]});
+  saveState();
+  renderSubjectPage(subId,true);
+  showToast('Group added');
+}
+
+function deleteGroup(subId,gi){
+  if(!confirm('Delete this entire group and all its topics?'))return;
+  ensureSubjectsCopy();
+  const g=state.subjects[subId].groups[gi];
+  if(g)g.topics.forEach(t=>delete state.topics[t.id]);
+  state.subjects[subId].groups.splice(gi,1);
+  saveState();
+  renderSubjectPage(subId,true);
+  updateSubjectProgress();
+  showToast('Group deleted');
+}
+
+function renameGroup(subId,gi,val){
+  ensureSubjectsCopy();
+  state.subjects[subId].groups[gi].name=val.trim();
+  saveState();
+}
+
+// ============================================================
+// TOPIC TOGGLE
+// ============================================================
+function toggleTopic(topicId){
+  const cur=state.topics[topicId]||'none';
+  const next=cur==='none'?'done':cur==='done'?'partial':'none';
+  state.topics[topicId]=next;
+  saveState();
+  const el=document.getElementById('chk-'+topicId);
+  const lbl=document.getElementById('lbl-'+topicId);
+  if(el)el.className='topic-check'+(next==='done'?' checked':next==='partial'?' partial':'');
+  if(lbl)lbl.className='topic-label'+(next==='done'?' checked':'');
+  updateSubjectProgress();
+  showToast(next==='done'?'✓ Done':next==='partial'?'~ Partial':'Unmarked');
+}
+
+function toggleGroup(subId,gi){
+  const block=document.getElementById('grp-'+subId+'-'+gi);
+  const body=document.getElementById('grp-body-'+subId+'-'+gi);
+  if(!block||!body)return;
+  const open=block.classList.contains('open');
+  block.classList.toggle('open');
+  body.style.display=open?'none':'block';
+}
+
+// ============================================================
+// PROGRESS UPDATES
+// ============================================================
+function updateSubjectProgress(){
+  const subjects=getSubjects();
+  let totalDone=0,totalAll=0;
+  Object.keys(subjects).forEach(subId=>{
+    const sub=subjects[subId];
+    let done=0,all=0;
+    sub.groups.forEach(g=>g.topics.forEach(t=>{all++;if(state.topics[t.id]==='done')done++;}));
+    totalDone+=done;totalAll+=all;
+    const pct=all>0?Math.round((done/all)*100):0;
+    const badge=document.getElementById('badge-'+subId);
+    if(badge)badge.textContent=pct+'%';
+    const pctEl=document.getElementById('spct-'+subId);if(pctEl)pctEl.textContent=pct+'%';
+    const countEl=document.getElementById('scount-'+subId);if(countEl)countEl.textContent=done+'/'+all;
+    const barEl=document.getElementById('sbar-'+subId);if(barEl)barEl.style.width=pct+'%';
+    const hdrPct=document.getElementById('hdr-pct-'+subId);if(hdrPct)hdrPct.textContent=pct+'%';
+    updateGroupCounts(subId);
+  });
+  const oPct=totalAll>0?Math.round((totalDone/totalAll)*100):0;
+  const opEl=document.getElementById('overall-pct');if(opEl)opEl.textContent=oPct+'%';
+  document.getElementById('db-topics-done').textContent=totalDone;
+  document.getElementById('db-topics-total').textContent='of '+totalAll+' total';
+  const bt=document.getElementById('db-bar-topics');if(bt)bt.style.width=oPct+'%';
+  renderOverviewBars();
+  renderProgressBars();
+  renderPriorityMatrix();
+}
+
+function updateGroupCounts(subId){
+  const subjects=getSubjects();
+  const sub=subjects[subId];
+  if(!sub)return;
+  sub.groups.forEach((g,gi)=>{
+    let done=0;g.topics.forEach(t=>{if(state.topics[t.id]==='done')done++;});
+    const el=document.getElementById('grp-count-'+subId+'-'+gi);
+    if(el)el.textContent=done+'/'+g.topics.length;
+  });
+}
+
+function markAllDone(subId){
+  const subjects=getSubjects();
+  const sub=subjects[subId];if(!sub)return;
+  sub.groups.forEach(g=>g.topics.forEach(t=>{state.topics[t.id]='done';}));
+  saveState();
+  renderSubjectPage(subId,true);
+  updateSubjectProgress();
+  showToast('✓ All topics marked done!');
+}
+
+function clearAllSub(subId){
+  const subjects=getSubjects();
+  const sub=subjects[subId];
+  if(!sub||!confirm('Clear progress for '+sub.name+'?'))return;
+  sub.groups.forEach(g=>g.topics.forEach(t=>{delete state.topics[t.id];}));
+  saveState();
+  renderSubjectPage(subId,true);
+  updateSubjectProgress();
+  showToast('Progress cleared');
+}
+
+// ============================================================
+// DAY TOGGLE
+// ============================================================
+function toggleDay(dateStr){
+  state.days[dateStr]=!state.days[dateStr];
+  saveState();
+  const el=document.getElementById('daychk-'+dateStr);
+  if(el)el.className='day-check'+(state.days[dateStr]?' checked':'');
+  updateDayStats();
+  renderHeatmap();
+}
+
+function updateDayStats(){
+  const start=new Date(state.startDate+'T00:00:00');
+  const exam=new Date(state.examDate+'T00:00:00');
+  const today=new Date();
+  const totalDays=Math.max(1,Math.ceil((exam-start)/(1000*60*60*24)));
+  const elapsed=Math.max(0,Math.floor((today-start)/(1000*60*60*24)));
+  const remain=Math.max(0,Math.ceil((exam-today)/(1000*60*60*24)));
+  document.getElementById('db-days-elapsed').textContent=elapsed;
+  document.getElementById('db-days-remain').textContent=remain+' days remaining';
+  const bd=document.getElementById('db-bar-days');if(bd)bd.style.width=Math.min(100,Math.round((elapsed/totalDays)*100))+'%';
+}
+
+function updateCountdown(){
+  const exam=new Date(state.examDate+'T00:00:00');
+  const diff=Math.ceil((exam-new Date())/(1000*60*60*24));
+  document.getElementById('countdown-num').textContent=diff>0?diff:0;
+}
+
+function updatePhaseIndicator(){
+  const today=new Date();
+  const start=new Date(state.startDate+'T00:00:00');
+  const exam=new Date(state.examDate+'T00:00:00');
+  const totalDays=Math.max(1,(exam-start)/(1000*60*60*24));
+  const elapsed=(today-start)/(1000*60*60*24);
+  const pct=(elapsed/totalDays)*100;
+  let label='Phase 1 — Revision 1';
+  if(pct>=60)label='Phase 2 — Revision 2';
+  if(pct>=83)label='Phase 3 — Mock Blitz';
+  if(pct>=93)label='Phase 4 — Final Sprint';
+  document.getElementById('phase-indicator').textContent=label;
+}
+
+// ============================================================
+// MOCK SCORES
+// ============================================================
+function updateMockScore(mockId,val){
+  const score=parseInt(val)||0;
+  state.mockScores[mockId]=score;
+  saveState();
+  const done=Object.values(state.mockScores).filter(s=>s>0).length;
+  document.getElementById('db-mocks-done').textContent=done;
+  const scores=Object.values(state.mockScores).filter(s=>s>0);
+  const best=scores.length>0?Math.max(...scores):null;
+  document.getElementById('db-best-score').textContent=best?'Best: '+best+'/800':'Best: —';
+  const bm=document.getElementById('db-bar-mocks');if(bm)bm.style.width=Math.round((done/8)*100)+'%';
+  renderMockScoreChart();
+  const card=document.getElementById('mock-card-'+mockId);
+  if(card){
+    card.className='mock-card'+(score>0?' done':'');
+    const m=MOCKS.find(m=>m.id===mockId);
+    const statusEl=document.getElementById('mock-status-'+mockId);
+    if(statusEl){
+      if(score>0){const diff=score-(m?m.target:0);statusEl.className='mock-status'+(diff>=0?' status-done':' status-warn');statusEl.textContent=(diff>=0?'✓ ':'⚠ ')+score+'/800'+(diff<0?' (target '+m.target+')':'');}
+      else{statusEl.className='mock-status status-upcoming';statusEl.textContent='Upcoming';}
+    }
+  }
+}
+
+function updateMCQ(subId,val){
+  state.mcqs[subId]=parseInt(val)||0;
+  saveState();
+  let total=Object.values(state.mcqs).reduce((a,b)=>a+b,0);
+  document.getElementById('db-mcqs').textContent=total.toLocaleString();
+  const bm=document.getElementById('db-bar-mcqs');if(bm)bm.style.width=Math.min(100,Math.round((total/25000)*100))+'%';
+}
+
+// ============================================================
+// MOCK RENDER
+// ============================================================
+function renderMocks(){
+  const grid=document.getElementById('mock-grid');if(!grid)return;
+  let html='';
+  MOCKS.forEach(m=>{
+    const score=state.mockScores[m.id]||0;
+    const isDone=score>0;
+    const diff=isDone?score-m.target:0;
+    html+=`<div class="mock-card${isDone?' done':''}" id="mock-card-${m.id}">
+      <div class="mock-num">Mock ${m.num}</div>
+      <div class="mock-title">${m.title}</div>
+      <div class="mock-date">${m.desc}</div>
+      <div style="font-size:10px;color:var(--text3);margin-top:4px">Target: ${m.target}/800</div>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:12px">
+        <input class="mock-score-input" type="number" min="0" max="800" placeholder="--" value="${score||''}" oninput="updateMockScore('${m.id}',this.value)"/>
+        <span style="font-size:11px;color:var(--text3)">/ 800</span>
+      </div>
+      <div class="mock-status ${isDone?(diff>=0?'status-done':'status-warn'):'status-upcoming'}" id="mock-status-${m.id}">
+        ${isDone?(diff>=0?'✓ ':'⚠ ')+score+'/800'+(diff<0?' (target '+m.target+')':''):'Upcoming'}
+      </div>
+    </div>`;
+  });
+  grid.innerHTML=html;
+  renderMockScoreChart();
+}
+
+function renderMockScoreChart(){
+  const el=document.getElementById('mock-score-chart');if(!el)return;
+  let html='';
+  MOCKS.forEach(m=>{
+    const score=state.mockScores[m.id]||0;
+    const pct=Math.round((score/800)*100);
+    const tpct=Math.round((m.target/800)*100);
+    const color=score>=m.target?'#34d399':score>0?'#fbbf24':'rgba(255,255,255,0.08)';
+    html+=`<div class="bar-h-row">
+      <div class="bar-h-label">M${m.num} — ${m.title.substring(0,12)}</div>
+      <div class="bar-h-wrap">
+        <div class="bar-h-fill" style="width:${pct}%;background:${color}">${score>0?'<span class="bar-h-val">'+score+'</span>':''}</div>
+        <div style="position:absolute;left:${tpct}%;top:0;width:2px;height:100%;background:rgba(108,142,245,0.4)"></div>
+      </div>
+    </div>`;
+  });
+  el.innerHTML=html||'<div style="color:var(--text3);font-size:12px">No scores yet</div>';
+}
+
+// ============================================================
+// ANALYTICS
+// ============================================================
+function renderOverviewBars(){
+  const el=document.getElementById('subject-bars-overview');if(!el)return;
+  const subjects=getSubjects();
+  let html='';
+  Object.keys(subjects).forEach(subId=>{
+    const sub=subjects[subId];
+    let done=0,all=0;
+    sub.groups.forEach(g=>g.topics.forEach(t=>{all++;if(state.topics[t.id]==='done')done++;}));
+    const pct=all>0?Math.round((done/all)*100):0;
+    html+=`<div class="bar-h-row">
+      <div class="bar-h-label">${sub.icon} ${sub.name}</div>
+      <div class="bar-h-wrap"><div class="bar-h-fill" style="width:${pct}%;background:${sub.color}">${pct>8?'<span class="bar-h-val">'+pct+'%</span>':''}</div></div>
+      <div style="font-size:11px;color:var(--text3);min-width:48px;text-align:right">${done}/${all}</div>
+    </div>`;
+  });
+  el.innerHTML=html;
+}
+
+function renderProgressBars(){
+  const el=document.getElementById('progress-bars');if(!el)return;
+  const subjects=getSubjects();
+  let html='';
+  Object.keys(subjects).forEach(subId=>{
+    const sub=subjects[subId];
+    let done=0,all=0;
+    sub.groups.forEach(g=>g.topics.forEach(t=>{all++;if(state.topics[t.id]==='done')done++;}));
+    const pct=all>0?Math.round((done/all)*100):0;
+    const pi=sub.phase==='weak'?'🔴':sub.phase==='moderate'?'🟡':'🟢';
+    html+=`<div class="bar-h-row">
+      <div class="bar-h-label">${pi} ${sub.name} (${sub.weight}%)</div>
+      <div class="bar-h-wrap"><div class="bar-h-fill" style="width:${pct}%;background:${sub.color}">${pct>8?'<span class="bar-h-val">'+pct+'%</span>':''}</div></div>
+      <div style="font-size:11px;color:var(--text3);min-width:36px;text-align:right">${pct}%</div>
+    </div>`;
+  });
+  el.innerHTML=html;
+}
+
+function renderPriorityMatrix(){
+  const el=document.getElementById('priority-matrix');if(!el)return;
+  const subjects=getSubjects();
+  let html='';
+  Object.keys(subjects).forEach(subId=>{
+    const sub=subjects[subId];
+    let done=0,all=0;
+    sub.groups.forEach(g=>g.topics.forEach(t=>{all++;if(state.topics[t.id]==='done')done++;}));
+    const pct=all>0?Math.round((done/all)*100):0;
+    const size=Math.round(42+sub.weight*5);
+    const bg=sub.phase==='weak'&&pct<50?'rgba(248,113,113,0.12)':'rgba(255,255,255,0.03)';
+    const bdr=sub.phase==='weak'?sub.color:'var(--border)';
+    html+=`<div style="width:${size}px;height:${size}px;border-radius:10px;background:${bg};border:1px solid ${bdr};display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;padding:4px" onclick="showPage('${subId}',null)" title="${sub.name}: ${sub.weight}% weight, ${pct}% done">
+      <div style="font-size:${Math.round(size*0.28)}px">${sub.icon}</div>
+      <div style="font-size:8px;color:var(--text3);text-align:center;margin-top:2px">${sub.name.substring(0,8)}</div>
+      <div style="font-size:9px;font-weight:700;color:${sub.color}">${pct}%</div>
+    </div>`;
+  });
+  el.innerHTML=html+'<div style="width:100%;margin-top:8px;font-size:11px;color:var(--text3)">Box size = exam weightage · Red border = weak subject · Click to open subject</div>';
+}
+
+function renderHeatmap(){
+  const el=document.getElementById('heatmap');if(!el)return;
+  const start=new Date(state.startDate+'T00:00:00');
+  const exam=new Date(state.examDate+'T00:00:00');
+  const totalDays=Math.max(7,Math.ceil((exam-start)/(1000*60*60*24)));
+  let html='';
+  for(let i=0;i<totalDays;i++){
+    const d=new Date(start);d.setDate(d.getDate()+i);
+    const ds=d.toISOString().split('T')[0];
+    const done=state.days[ds];
+    const label=d.toLocaleDateString('en-IN',{day:'numeric',month:'short'});
+    html+=`<div class="hm-cell${done?' hm-4':''}" title="${label}${done?' ✓':''}" onclick="toggleDay('${ds}')"></div>`;
+  }
+  el.innerHTML=html;
+}
+
+function renderTodaysPlan(){
+  const el=document.getElementById('todays-plan');if(!el)return;
+  const todayStr=new Date().toISOString().split('T')[0];
+  const schedule=generateSchedule();
+  const today=schedule.find(d=>d.date===todayStr);
+  if(today){
+    el.innerHTML=today.subjects.map(s=>`<div>→ ${s}</div>`).join('')+
+      (today.mcq>0?`<div style="color:var(--amber);margin-top:8px">🎯 Target: ${today.mcq} MCQs</div>`:'');
+  } else {
+    el.innerHTML='<div style="color:var(--text3)">Set your exam date in the Schedule page to see today\'s plan.</div>';
+  }
+}
+
+// ============================================================
+// NOTES
+// ============================================================
+function saveNotes(){
+  const g=document.getElementById('global-notes');
+  const m=document.getElementById('mock-notes');
+  if(g)state.notes.global=g.value;
+  if(m)state.notes.mock=m.value;
+  saveState();
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function showPage(id,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if(el)el.classList.add('active');
+  const titles={dashboard:'Dashboard',schedule:'Schedule',mocks:'Mock Tests',medicine:'Medicine',surgery:'Surgery',pharmacology:'Pharmacology',pathology:'Pathology',microbiology:'Microbiology',obg:'OBG',ophthalmology:'Ophthalmology',paediatrics:'Paediatrics',anatomy:'Anatomy',physiology:'Physiology',biochemistry:'Biochemistry',misc:'Misc',progress:'Progress',strategy:'Strategy'};
+  document.getElementById('topbar-title').textContent=titles[id]||id;
+  // Lazy render subject pages
+  const subIds=['medicine','surgery','pharmacology','pathology','microbiology','obg','ophthalmology','paediatrics','anatomy','physiology','biochemistry','misc'];
+  if(subIds.includes(id))renderSubjectPage(id);
+  if(id==='schedule')renderSchedule();
+  if(id==='progress'){renderProgressBars();renderPriorityMatrix();renderHeatmap();}
+}
+
+// ============================================================
+// TOAST & RESET
+// ============================================================
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),1800);
+}
+
+function confirmReset(){
+  if(confirm('Reset ALL progress? This cannot be undone.'))
+    {localStorage.removeItem(STORAGE_KEY);location.reload();}
+}
+
+// ============================================================
+// INIT
+// ============================================================
+window.onload=function(){
+  loadState();
+
+  // Set date pickers
+  document.getElementById('exam-date-picker').value=state.examDate;
+  document.getElementById('start-date-picker').value=state.startDate;
+
+  // Restore notes
+  const gn=document.getElementById('global-notes');if(gn)gn.value=state.notes.global||'';
+  const mn=document.getElementById('mock-notes');if(mn)mn.value=state.notes.mock||'';
+
+  // Render
+  renderMocks();
+  renderSchedule();
+  renderOverviewBars();
+  renderTodaysPlan();
+  updateSubjectProgress();
+  updateDayStats();
+  updateCountdown();
+  updatePhaseIndicator();
+
+  setInterval(updateCountdown,60000);
+};
+</script>
+</body>
+</html>
