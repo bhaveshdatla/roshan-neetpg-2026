@@ -424,6 +424,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       </div>
       <div>
         <div class="strat-card"><div class="strat-card-title"><span style="color:var(--green)">🎯</span> Mock test protocol</div><ul class="strat-list"><li>Every mock = strict exam conditions, no phone</li><li>After mock: 3-hour mandatory analysis</li><li>Log every wrong: knowledge gap / silly / guess</li><li>Track error rate by subject across all mocks</li><li>Target: M1→370, M4→500, M6→560, M8→640+</li></ul></div>
+        <div class="strat-card"><div class="strat-card-title"><span style="color:var(--teal)">📋</span> 3-slot daily structure</div><ul class="strat-list"><li>Slot 1 — Primary subject of the day (Prepladder notes)</li><li>Slot 2 — Supporting subject or continuation + 200 MCQs</li><li>Slot 3 — DAILY weak drill: Ophthalmology OR Pharmacology (alternating)</li><li>Slot 3 never changes — weak subjects get drilled every single day</li><li>Subject order: Patho → Micro → Medicine → Surgery → OBG → Paed → PSM → Anat → Physio → Biochem → ENT → Opthal → FMT → Psych → Pharma → Radio → Ortho → Anaes → Derma</li></ul></div>
         <div class="strat-card"><div class="strat-card-title"><span style="color:var(--purple)">⚡</span> Revision 2 rules</div><ul class="strat-list"><li>NO full note re-reading — only one-liners, tables</li><li>Each subject max 1 day in Rev 2</li><li>MCQ volume → 900 questions/day</li><li>Active recall only — close notes, test yourself first</li><li>No new topic after 25 days before exam</li></ul></div>
         <div class="strat-card"><div class="strat-card-title"><span style="color:var(--accent)">💤</span> Non-negotiables</div><ul class="strat-list"><li>6.5–7 hrs sleep minimum — memory consolidates here</li><li>30 min break after every 3-hr block</li><li>No screen after 11:30 PM</li><li>Eat every 4 hrs — brain uses 25% of glucose</li><li>Final 5 days: reduce intensity, 7+ hrs sleep</li></ul></div>
       </div>
@@ -845,33 +846,81 @@ const PHASE_PLAN=[
   {pct:93, phase:'Final Sprint', label:'Final Sprint', chipCls:'chip-red'},
 ];
 
-// Rev 1 subject rotation
-const REV1_ROTATION=[
-  ['Medicine (CVS, Resp)','Pharmacology (CVS, ANS)'],
-  ['Medicine (GI, Nephro)','Ophthalmology Pt 1'],
-  ['Medicine (Endo, Neuro)','Pharmacology (CNS)'],
-  ['Medicine (Haem, Infect)','Ophthalmology Pt 2'],
-  ['Surgery (GI, Abdomen)','Pathology (General)'],
-  ['Surgery (Breast, Endo)','Pharmacology (Antimicrobials)'],
-  ['Surgery (Urology, Trauma)','Pathology (Systemic)'],
-  ['Microbiology (Bacteriology)','Pharmacology (Chemotherapy)'],
-  ['Microbiology (Virology, Para)','Ophthalmology Pt 3'],
-  ['OBG (Obstetrics)','Biochemistry'],
-  ['OBG (Gynaecology)','Pharmacology (Endocrine)'],
-  ['Paediatrics','Ophthalmology Final'],
-  ['Anatomy','Pharmacology (HY Misc)'],
-  ['Physiology','Pathology (Blood, Renal)'],
-  ['Dermatology + Psychiatry + FMT','PSM / Biostatistics'],
+// ── Subject order (user-defined, 19 subjects) ──────────────────────────────
+// Each entry: [slot1 label, slot2 label, daysToSpend]
+// Slot 3 is ALWAYS a weak-subject drill (Ophthalmology OR Pharmacology rotating)
+const SUBJECT_ORDER=[
+  // [Slot1 — primary,            Slot2 — secondary,            days]
+  ['Pathology (General Path)',    'Pathology (Systemic)',              2],
+  ['Microbiology (Bacteriology)', 'Microbiology (Virology + Para)',    2],
+  ['Medicine (CVS + Resp)',       'Medicine (GI + Nephro)',            2],
+  ['Medicine (Endo + Neuro)',     'Medicine (Haem + Infections)',      2],
+  ['Surgery (GI + Abdomen)',      'Surgery (Breast + Thyroid)',        2],
+  ['Surgery (Urology + Trauma)',  'Surgery (Vascular + Ortho)',        1],
+  ['OBG (Obstetrics)',            'OBG (Gynaecology)',                 2],
+  ['Paediatrics (Neonatology)',   'Paediatrics (Medicine + Dev)',      1],
+  ['PSM (Epidemiology + Stats)',  'PSM (National Programmes)',         1],
+  ['Anatomy (Gross + Neuro)',     'Anatomy (Histology + Embryo)',      1],
+  ['Physiology (CVS + Resp)',     'Physiology (Renal + Endo)',         1],
+  ['Biochemistry (Metabolism)',   'Biochemistry (Mol Bio + Clinical)', 1],
+  ['ENT — High-yield topics',     'ENT — MCQ drill',                  1],
+  ['Ophthalmology (Ant Seg + Glaucoma)', 'Ophthalmology (Retina + Neuro-oph)', 2],
+  ['FMT (Forensic + Toxicology)', 'FMT — MCQ drill',                  1],
+  ['Psychiatry — High-yield',     'Psychiatry — MCQ drill',           1],
+  ['Pharmacology (ANS + CVS)',    'Pharmacology (CNS + Antimicro)',    2],
+  ['Pharmacology (Endocrine + Misc)', 'Pharmacology — MCQ blast',     1],
+  ['Radiology — HY topics',       'Radiology — MCQ drill',            1],
+  ['Orthopaedics — HY topics',    'Ortho — MCQ drill',                1],
+  ['Anaesthesia — HY topics',     'Anaesthesia — MCQ drill',          1],
+  ['Dermatology — HY topics',     'Dermatology — MCQ drill',          1],
 ];
-const REV2_ROTATION=[
-  ['Medicine rapid rev — one-liners only','Pharmacology rapid pass'],
-  ['Surgery speed rev','Pathology tables only'],
-  ['Pharmacology full rapid rev','Ophthalmology HY only'],
-  ['Microbiology rapid','OBG tables + landmarks'],
-  ['Paediatrics rapid','Anatomy + Physiology speed'],
-  ['Biochemistry + Misc rapid','All subject MCQ sprint'],
-  ['Error subjects revisit','Integrated MCQ day'],
+
+// Rev 2 rapid-fire order mirrors the same 19-subject sequence (1 day each, speed mode)
+const REV2_ORDER=[
+  ['Pathology — one-liners + tables',       'Pathology rapid MCQ'],
+  ['Microbiology — rapid revision',          'Micro rapid MCQ'],
+  ['Medicine — one-liners only',             'Medicine rapid MCQ'],
+  ['Surgery — key cases + tables',           'Surgery rapid MCQ'],
+  ['OBG — landmarks + tables',              'OBG rapid MCQ'],
+  ['Paediatrics — milestones + vaccines',    'Paed rapid MCQ'],
+  ['PSM — stats + national programmes',     'PSM rapid MCQ'],
+  ['Anatomy + Physiology speed pass',       'Anat + Physio rapid MCQ'],
+  ['Biochemistry rapid revision',            'Biochem rapid MCQ'],
+  ['ENT + Psychiatry + Derma rapid',        'ENT/Psych/Derma rapid MCQ'],
+  ['Ophthalmology — HY only',              'Opthal rapid MCQ'],
+  ['Pharmacology full rapid revision',       'Pharma rapid MCQ'],
+  ['Radiology + Ortho + Anaes rapid',       'Radio/Ortho/Anaes rapid MCQ'],
+  ['FMT + Misc rapid',                      'Mixed integrated MCQ sprint'],
 ];
+
+// Weak-subject Slot 3 rotation — alternates daily between Opthal and Pharma subtopics
+const WEAK_SLOT3=[
+  'Ophthalmology — Glaucoma MCQ drill (150 Qs)',
+  'Pharmacology — Drug classification tables',
+  'Ophthalmology — Retina + Neuro-oph MCQ drill',
+  'Pharmacology — Antimicrobial drugs MCQ',
+  'Ophthalmology — Anterior segment MCQ drill',
+  'Pharmacology — CNS + Antiepileptic drugs',
+  'Ophthalmology — Full rapid MCQ blast',
+  'Pharmacology — CVS + ANS drug revision',
+  'Ophthalmology — HY values + tables',
+  'Pharmacology — Endocrine + Cancer drugs',
+  'Ophthalmology — Mixed MCQ sprint',
+  'Pharmacology — Mixed HY MCQ sprint',
+];
+
+// Build a flat day-by-day array from SUBJECT_ORDER for Rev 1
+function buildRev1Days(){
+  const arr=[];
+  SUBJECT_ORDER.forEach(entry=>{
+    const [s1,s2,days]=entry;
+    for(let d=0;d<days;d++){
+      // Alternate between s1 and s2 across the days for that subject
+      arr.push(d%2===0?s1:s2);
+    }
+  });
+  return arr;
+}
 
 function generateSchedule(){
   const start=new Date(state.startDate+'T00:00:00');
@@ -879,13 +928,18 @@ function generateSchedule(){
   const totalDays=Math.max(7,Math.ceil((exam-start)/(1000*60*60*24)));
   const schedule=[];
 
+  const rev1Days=buildRev1Days(); // flat list for slot 1+2
+  let rev1Idx=0;   // tracks which Rev1 slot we're on (skips mock days)
+  let rev2Idx=0;   // tracks Rev2 day index
+  let mockCount=0; // total mocks so far across all phases
+  let weakIdx=0;   // cycles through WEAK_SLOT3
+
   for(let i=0;i<totalDays;i++){
     const d=new Date(start);
     d.setDate(d.getDate()+i);
     const dateStr=d.toISOString().split('T')[0];
     const pct=(i/totalDays)*100;
-    const dow=d.getDay(); // 0=Sun
-    const isWeekend=dow===0||dow===6;
+    const dow=d.getDay(); // 0=Sun,6=Sat
 
     // determine phase
     let phase=PHASE_PLAN[0];
@@ -893,59 +947,85 @@ function generateSchedule(){
       if(pct>=PHASE_PLAN[p].pct){phase=PHASE_PLAN[p];break;}
     }
 
-    // determine subjects
     let subjects=[];
+    let slot3='';
     let mcq=600;
     let note='';
     let isMock=false;
 
     if(phase.phase==='Final Sprint'){
-      subjects=['High-yield tables only — all subjects','Light 50Q mini-mock'];
+      subjects=['HY tables — all subjects','Light 50Q mini-mock'];
+      slot3='Pharmacology + Ophthalmology — final HY pass';
       mcq=300;
       note='Final sprint — no new topics';
+
     } else if(phase.phase==='Mock Blitz'){
-      const mockBlitzDay=Math.floor((pct-83)/((100-83)/totalDays));
-      if(isWeekend||mockBlitzDay%2===0){
-        const mn=Math.min(8,Math.ceil((i-(totalDays*0.83))/2)+6);
-        subjects=['🎯 Full Mock Test M'+mn,'3-hr analysis session'];
+      const blitzDay=i-Math.floor(totalDays*0.83);
+      if(blitzDay%2===0){
+        mockCount=Math.min(8,mockCount+1);
+        subjects=['🎯 Full Mock Test M'+mockCount+' (800 marks)','3-hr error analysis session'];
+        slot3='Targeted weak-area revision post-mock';
         mcq=0; isMock=true;
-        note='Mock day — strict exam conditions';
+        note='Mock day — strict exam conditions, no breaks';
       } else {
-        subjects=['Targeted revision from mock errors','Weak area sprint'];
+        subjects=['Error subject revision (from mock log)','Weak area targeted sprint'];
+        slot3=WEAK_SLOT3[weakIdx++%WEAK_SLOT3.length];
         mcq=500;
       }
+
     } else if(phase.phase==='Rev 2'){
-      if(isWeekend){
-        const mn=Math.min(5,Math.ceil(i-(totalDays*0.6)/totalDays*4)+4);
-        subjects=['🎯 Full Mock Test M'+mn,'Score review + error log'];
+      if(dow===0){ // Sunday = mock in Rev 2
+        mockCount=Math.min(8,mockCount+1);
+        subjects=['🎯 Full Mock Test M'+mockCount+' (800 marks)','Score review + error log'];
+        slot3='Error analysis + weak subject sprint';
         mcq=0; isMock=true;
-        note='Mock weekend';
+        note='Mock Sunday';
       } else {
-        const ri=Math.floor((i-(totalDays*0.60))/1)%REV2_ROTATION.length;
-        subjects=REV2_ROTATION[ri];
+        const ri=rev2Idx%REV2_ORDER.length;
+        subjects=REV2_ORDER[ri];
+        slot3=WEAK_SLOT3[weakIdx++%WEAK_SLOT3.length];
         mcq=850;
+        rev2Idx++;
       }
+
     } else { // Rev 1
-      if(isWeekend&&dow===0){
-        // Sunday mock in Rev 1
-        const mockNum=Math.ceil((i/7));
-        if(mockNum<=3){
-          subjects=['🎯 Full Mock Test M'+mockNum,'Error analysis + revision'];
+      if(dow===0&&i>0){ // Sunday mock in Rev 1
+        const weekNum=Math.floor(i/7);
+        if(weekNum>=1&&weekNum<=3){
+          mockCount=Math.min(8,mockCount+1);
+          subjects=['🎯 Full Mock Test M'+mockCount+' (800 marks)','Error analysis + revision'];
+          slot3='Ophthalmology + Pharmacology post-mock sprint';
           mcq=0; isMock=true;
-          note='Mock day — analyse every wrong answer';
+          note='Mock Sunday — analyse every wrong answer';
         } else {
-          const ri=Math.floor(i/2)%REV1_ROTATION.length;
-          subjects=REV1_ROTATION[ri];
+          // Non-mock Sunday: continue subject rotation
+          const s=rev1Days[rev1Idx%rev1Days.length];
+          subjects=[s,'Mixed MCQ — subject of the day'];
+          slot3=WEAK_SLOT3[weakIdx++%WEAK_SLOT3.length];
+          rev1Idx++;
           mcq=600;
         }
       } else {
-        const ri=Math.floor(i/2)%REV1_ROTATION.length;
-        subjects=REV1_ROTATION[ri%REV1_ROTATION.length];
+        const s=rev1Days[rev1Idx%rev1Days.length];
+        subjects=[s,'Prepladder notes + subject MCQs (200 Qs)'];
+        slot3=WEAK_SLOT3[weakIdx++%WEAK_SLOT3.length];
+        rev1Idx++;
         mcq=600;
       }
     }
 
-    schedule.push({date:dateStr,dateObj:d,phase:phase.label,chipCls:phase.chipCls,subjects,mcq,note,isMock});
+    // Build display subjects: slot1, slot2, then slot3 as weak-subject drill
+    const displaySubjects=isMock?subjects:[...subjects,slot3?'⚠ Weak drill: '+slot3:''];
+
+    schedule.push({
+      date:dateStr,
+      dateObj:d,
+      phase:phase.label,
+      chipCls:phase.chipCls,
+      subjects:displaySubjects.filter(Boolean),
+      mcq,note,isMock,
+      slot3
+    });
   }
   return schedule;
 }
@@ -978,18 +1058,22 @@ function renderSchedule(){
   if(!schedule.length){container.innerHTML='<div style="padding:20px;color:var(--text3)">Set exam date and start date above, then click Generate.</div>';return;}
 
   const todayStr=new Date().toISOString().split('T')[0];
-  let html='<table class="sched-table"><thead><tr><th>Date</th><th>Phase</th><th>Subjects / Focus</th><th>MCQs</th><th>Notes</th><th style="text-align:center">Done</th></tr></thead><tbody>';
+  let html='<table class="sched-table"><thead><tr><th>Date</th><th>Phase</th><th>Slot 1 + 2 — Main subjects</th><th>Slot 3 — Weak drill (daily)</th><th>MCQs</th><th>Notes</th><th style="text-align:center">Done</th></tr></thead><tbody>';
 
   schedule.forEach(day=>{
     const isToday=day.date===todayStr;
     const isDone=state.days[day.date];
     const dateLabel=day.dateObj.toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'});
-    const subHtml=day.subjects.map(s=>`<span class="sday-chip ${day.isMock?'chip-amber':'chip-blue'}">${s}</span>`).join('');
+    const mainSubjects=day.isMock?day.subjects:day.subjects.filter(s=>!s.startsWith('⚠ Weak drill:'));
+    const weakSlot=day.isMock?'—':day.subjects.find(s=>s.startsWith('⚠ Weak drill:'))?.replace('⚠ Weak drill: ','') || day.slot3 || '—';
+    const mainHtml=mainSubjects.map(s=>`<span class="sday-chip ${day.isMock?'chip-amber':'chip-blue'}">${s}</span>`).join('');
+    const weakHtml=day.isMock?'<span style="color:var(--text3);font-size:11px">—</span>':`<span class="sday-chip chip-red" style="font-size:10px">${weakSlot}</span>`;
     const dayNote=state.schedNotes&&state.schedNotes[day.date]?state.schedNotes[day.date]:'';
     html+=`<tr${isToday?' class="today-row"':''}${isDone?' style="opacity:0.5"':''}>
       <td style="white-space:nowrap;font-weight:600;color:${isToday?'var(--accent)':'var(--text)'}">${dateLabel}${isToday?' 📍':''}</td>
       <td><span class="sday-chip ${day.chipCls}">${day.phase}</span></td>
-      <td>${subHtml}</td>
+      <td>${mainHtml}</td>
+      <td>${weakHtml}</td>
       <td style="font-size:12px;color:var(--text3)">${day.mcq>0?day.mcq+'Q':'—'}</td>
       <td><input class="sched-notes-input" placeholder="add note..." value="${dayNote.replace(/"/g,'&quot;')}" oninput="saveSchedNote('${day.date}',this.value)"/></td>
       <td style="text-align:center"><div class="day-check${isDone?' checked':''}" id="daychk-${day.date}" onclick="toggleDay('${day.date}')"></div></td>
@@ -1510,7 +1594,11 @@ function renderTodaysPlan(){
   const schedule=generateSchedule();
   const today=schedule.find(d=>d.date===todayStr);
   if(today){
-    el.innerHTML=today.subjects.map(s=>`<div>→ ${s}</div>`).join('')+
+    const mainSubs=today.isMock?today.subjects:today.subjects.filter(s=>!s.startsWith('⚠ Weak drill:'));
+    const weakDrill=today.isMock?null:today.slot3;
+    el.innerHTML=
+      mainSubs.map((s,i)=>`<div><span style="color:var(--text3);font-size:11px">Slot ${i+1}</span> → ${s}</div>`).join('')+
+      (weakDrill?`<div style="color:var(--red);margin-top:4px"><span style="font-size:11px">Slot 3 (Weak drill)</span> → ${weakDrill}</div>`:'')+
       (today.mcq>0?`<div style="color:var(--amber);margin-top:8px">🎯 Target: ${today.mcq} MCQs</div>`:'');
   } else {
     el.innerHTML='<div style="color:var(--text3)">Set your exam date in the Schedule page to see today\'s plan.</div>';
