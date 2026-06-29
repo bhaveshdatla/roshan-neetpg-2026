@@ -243,36 +243,39 @@ width:100%;min-height:80px;padding:12px;background:var(--bg3);border:1px solid v
 .toast.show{opacity:1;transform:translateY(0);}
 
 /* PIN SCREEN */
-.pin-overlay{position:fixed;inset:0;background:var(--bg);z-index:1000;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:0;}
+.pin-overlay{position:fixed;inset:0;background:#0f1117;z-index:1000;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:0;}
 .pin-overlay.hidden{display:none;}
-.pin-box{background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:36px 40px;width:100%;max-width:380px;text-align:center;}
-.pin-logo{font-size:32px;margin-bottom:4px;}
-.pin-title{font-size:20px;font-weight:800;margin-bottom:4px;color:var(--text);}
-.pin-sub{font-size:13px;color:var(--text3);margin-bottom:28px;line-height:1.5;}
+.pin-box{background:#1a1d2e;border:1px solid rgba(255,255,255,0.15);border-radius:20px;padding:36px 40px;width:90%;max-width:380px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.5);}
+.pin-logo{font-size:36px;margin-bottom:6px;}
+.pin-title{font-size:22px;font-weight:800;margin-bottom:4px;color:#e8eaf0;}
+.pin-sub{font-size:13px;color:#9098b8;margin-bottom:24px;line-height:1.6;}
 .pin-dots{display:flex;justify-content:center;gap:12px;margin-bottom:24px;}
-.pin-dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--border2);background:transparent;transition:all 0.2s;}
-.pin-dot.filled{background:var(--accent);border-color:var(--accent);}
-.pin-dot.error{background:var(--red);border-color:var(--red);}
+.pin-dot{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,0.2);background:transparent;transition:all 0.2s;}
+.pin-dot.filled{background:#6c8ef5;border-color:#6c8ef5;}
+.pin-dot.error{background:#f87171;border-color:#f87171;}
 .pin-keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
-.pin-key{padding:16px;border-radius:12px;border:1px solid var(--border2);background:var(--bg3);color:var(--text);font-size:20px;font-weight:600;cursor:pointer;transition:all 0.15s;-webkit-tap-highlight-color:transparent;}
-.pin-key:hover{background:var(--bg4);border-color:var(--border2);}
-.pin-key:active{transform:scale(0.94);background:rgba(108,142,245,0.15);border-color:var(--accent);}
-.pin-key.del{font-size:18px;color:var(--text2);}
-.pin-key.enter{background:var(--accent);border-color:var(--accent);color:#fff;font-size:14px;font-weight:700;}
-.pin-key.enter:hover{background:var(--accent2);}
-.pin-msg{font-size:12px;color:var(--text3);min-height:18px;transition:color 0.2s;}
-.pin-msg.error{color:var(--red);}
-.pin-msg.success{color:var(--green);}
-.pin-toggle{margin-top:14px;font-size:12px;color:var(--accent);cursor:pointer;text-decoration:underline;}
-.pin-supabase-row{display:flex;flex-direction:column;gap:8px;margin-bottom:20px;}
-.pin-input{width:100%;padding:10px 14px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:13px;outline:none;text-align:center;}
-.pin-input:focus{border-color:var(--accent);}
-.sync-indicator{position:fixed;top:12px;right:16px;z-index:500;font-size:11px;display:flex;align-items:center;gap:5px;background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:4px 10px;opacity:0;transition:opacity 0.3s;}
+.pin-key{padding:16px;border-radius:12px;border:1px solid rgba(255,255,255,0.1);background:#1e2130;color:#e8eaf0;font-size:20px;font-weight:600;cursor:pointer;transition:all 0.15s;-webkit-tap-highlight-color:transparent;user-select:none;}
+.pin-key:hover{background:#252840;border-color:rgba(255,255,255,0.2);}
+.pin-key:active{transform:scale(0.94);background:rgba(108,142,245,0.2);border-color:#6c8ef5;}
+.pin-key.del{font-size:18px;color:#9098b8;}
+.pin-key.enter{background:#6c8ef5;border-color:#6c8ef5;color:#fff;font-size:14px;font-weight:700;}
+.pin-key.enter:hover{background:#4f70e8;}
+.pin-msg{font-size:12px;color:#9098b8;min-height:20px;transition:color 0.2s;margin-bottom:4px;}
+.pin-msg.error{color:#f87171;}
+.pin-msg.success{color:#34d399;}
+.pin-toggle{margin-top:12px;font-size:12px;color:#6c8ef5;cursor:pointer;text-decoration:underline;}
+.pin-supabase-row{display:none;flex-direction:column;gap:8px;margin-bottom:20px;}
+.pin-input{width:100%;padding:10px 14px;background:#1e2130;border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:#e8eaf0;font-size:12px;outline:none;text-align:left;box-sizing:border-box;}
+.pin-input:focus{border-color:#6c8ef5;}
+.pin-loader{display:flex;flex-direction:column;align-items:center;gap:12px;color:#9098b8;font-size:13px;}
+.pin-spinner{width:32px;height:32px;border:3px solid rgba(108,142,245,0.2);border-top-color:#6c8ef5;border-radius:50%;animation:spin 0.8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.sync-indicator{position:fixed;top:12px;right:16px;z-index:500;font-size:11px;display:flex;align-items:center;gap:5px;background:#161922;border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:4px 10px;opacity:0;transition:opacity 0.3s;pointer-events:none;}
 .sync-indicator.show{opacity:1;}
 .sync-dot{width:6px;height:6px;border-radius:50%;}
-.sync-dot.syncing{background:var(--amber);animation:pulse 1s infinite;}
-.sync-dot.synced{background:var(--green);}
-.sync-dot.offline{background:var(--text3);}
+.sync-dot.syncing{background:#fbbf24;animation:pulse 1s infinite;}
+.sync-dot.synced{background:#34d399;}
+.sync-dot.offline{background:#5a6080;}
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
 
 </head>
@@ -286,16 +289,23 @@ width:100%;min-height:80px;padding:12px;background:var(--bg3);border:1px solid v
 
 <!-- PIN SCREEN -->
 <div class="pin-overlay" id="pin-overlay">
-  <div class="pin-box">
+  <!-- Loading spinner (shown while JS initialises) -->
+  <div class="pin-loader" id="pin-loader">
+    <div class="pin-spinner"></div>
+    <span>Loading dashboard…</span>
+  </div>
+
+  <!-- PIN box (hidden until JS decides to show it) -->
+  <div class="pin-box" id="pin-box" style="display:none">
     <div class="pin-logo">🎯</div>
     <div class="pin-title">NEET PG 2026</div>
-    <div class="pin-sub" id="pin-sub">Enter your PIN to access your dashboard.<br>New user? Choose any 4–6 digit PIN.</div>
+    <div class="pin-sub" id="pin-sub">Enter your PIN to sync across devices.<br>First time? Pick any 4–6 digit PIN.</div>
 
-    <!-- Supabase config (shown once on first setup) -->
-    <div class="pin-supabase-row" id="supabase-config-row" style="display:none">
-      <input class="pin-input" id="sb-url" placeholder="Supabase Project URL (https://xxx.supabase.co)" type="url"/>
-      <input class="pin-input" id="sb-key" placeholder="Supabase Anon Key" type="text"/>
-      <div style="font-size:11px;color:var(--text3)">Paste these from your Supabase project → Settings → API</div>
+    <!-- Supabase config -->
+    <div class="pin-supabase-row" id="supabase-config-row">
+      <input class="pin-input" id="sb-url" placeholder="Supabase URL — https://xxxx.supabase.co" type="url" autocomplete="off"/>
+      <input class="pin-input" id="sb-key" placeholder="Supabase anon/public key" type="text" autocomplete="off"/>
+      <div style="font-size:11px;color:#5a6080;text-align:left;padding:0 2px">Get these from Supabase → Settings → API. <a href="https://supabase.com" target="_blank" style="color:#6c8ef5">Open Supabase ↗</a></div>
     </div>
 
     <div class="pin-dots" id="pin-dots">
@@ -321,12 +331,10 @@ width:100%;min-height:80px;padding:12px;background:var(--bg3);border:1px solid v
       <div class="pin-key" onclick="pinKey('0')">0</div>
       <div class="pin-key enter" onclick="pinEnter()">GO</div>
     </div>
-
     <div class="pin-msg" id="pin-msg"></div>
-    <div class="pin-toggle" id="pin-toggle" onclick="toggleSupabaseConfig()">⚙ Configure Supabase (first time only)</div>
+    <div class="pin-toggle" id="pin-toggle" onclick="toggleSupabaseConfig()">⚙ Configure Supabase</div>
   </div>
 </div>
-
 
 <aside class="sidebar">
   <div class="sidebar-logo">
@@ -692,48 +700,69 @@ function toggleSupabaseConfig(){
   const row=document.getElementById('supabase-config-row');
   const tog=document.getElementById('pin-toggle');
   if(!row)return;
-  const show=row.style.display==='none';
-  row.style.display=show?'flex':'none';
-  row.style.flexDirection='column';
-  tog.textContent=show?'✕ Hide config':'⚙ Configure Supabase (first time only)';
+  const isHidden=row.style.display==='none'||row.style.display==='';
+  row.style.display=isHidden?'flex':'none';
+  if(tog)tog.textContent=isHidden?'✕ Hide Supabase config':'⚙ Configure Supabase';
+}
+
+function showPinScreen(firstTime){
+  // Hide loader, show pin box
+  const loader=document.getElementById('pin-loader');
+  const box=document.getElementById('pin-box');
+  if(loader)loader.style.display='none';
+  if(box)box.style.display='block';
+  // Pre-fill saved Supabase config
+  const sbUrlEl=document.getElementById('sb-url');
+  const sbKeyEl=document.getElementById('sb-key');
+  if(sbUrlEl&&SUPABASE_URL)sbUrlEl.value=SUPABASE_URL;
+  if(sbKeyEl&&SUPABASE_KEY)sbKeyEl.value=SUPABASE_KEY;
+  if(firstTime||!SUPABASE_URL||!SUPABASE_KEY){
+    // Auto-expand Supabase config on first time
+    const row=document.getElementById('supabase-config-row');
+    const tog=document.getElementById('pin-toggle');
+    if(row)row.style.display='flex';
+    if(tog)tog.textContent='✕ Hide Supabase config';
+    const sub=document.getElementById('pin-sub');
+    if(sub)sub.textContent='First time setup: paste your Supabase details below, then choose a PIN. Next time just enter your PIN on any device.';
+  }
 }
 async function pinEnter(){
   if(pinBuffer.length<PIN_MIN){flashPinError('PIN must be at least '+PIN_MIN+' digits');return;}
-
-  // Save Supabase config if visible
+  // Save Supabase config if fields are filled
   const sbUrlEl=document.getElementById('sb-url');
   const sbKeyEl=document.getElementById('sb-key');
   if(sbUrlEl&&sbKeyEl&&sbUrlEl.value.trim()&&sbKeyEl.value.trim()){
     saveConfig(sbUrlEl.value,sbKeyEl.value);
+    loadConfig();
   }
-  loadConfig();
-
   setPinMsg('Verifying…');
-  const hash=await hashPin(pinBuffer);
-  CURRENT_PIN=hash;
-
-  // Try remote load first
-  let loaded=false;
-  if(SUPABASE_URL&&SUPABASE_KEY){
-    setPinMsg('Connecting to cloud…');
-    loaded=await loadStateRemote(hash);
-  }
-  if(!loaded){
-    // fall back to local
+  try{
+    const hash=await hashPin(pinBuffer);
+    CURRENT_PIN=hash;
+    let loaded=false;
+    if(SUPABASE_URL&&SUPABASE_KEY){
+      setPinMsg('Connecting to cloud…');
+      try{ loaded=await loadStateRemote(hash); }catch(e){}
+    }
+    if(!loaded){
+      loadStateLocal();
+      if(!SUPABASE_URL||!SUPABASE_KEY) setSyncStatus('offline');
+    }
+    sessionStorage.setItem(PIN_SESSION_KEY,hash);
+    pinBuffer='';updatePinDots();
+    setPinMsg('Loading your dashboard…','success');
+    setTimeout(()=>{
+      document.getElementById('pin-overlay').classList.add('hidden');
+      bootDashboard();
+    },400);
+  }catch(err){
+    console.error('PIN error:',err);
+    // Even if everything fails, load local and proceed
     loadStateLocal();
-    setSyncStatus('offline');
-  }
-
-  // Save PIN session so next open on same browser skips PIN screen
-  sessionStorage.setItem(PIN_SESSION_KEY,hash);
-
-  pinBuffer='';
-  updatePinDots();
-  setPinMsg('Welcome back! Loading…','success');
-  setTimeout(()=>{
+    sessionStorage.setItem(PIN_SESSION_KEY,CURRENT_PIN||'local');
     document.getElementById('pin-overlay').classList.add('hidden');
     bootDashboard();
-  },500);
+  }
 }
 
 // keyboard support for PIN
@@ -2162,33 +2191,38 @@ function confirmReset(){
 // ENTRY POINT
 // ============================================================
 window.onload=async function(){
-  loadConfig();
+  try{
+    loadConfig();
 
-  // Check if PIN session already exists (same browser tab session)
-  const sessionPin=sessionStorage.getItem(PIN_SESSION_KEY);
-  if(sessionPin&&SUPABASE_URL&&SUPABASE_KEY){
-    CURRENT_PIN=sessionPin;
-    document.getElementById('pin-overlay').classList.add('hidden');
-    const loaded=await loadStateRemote(sessionPin);
-    if(!loaded) loadStateLocal();
-    bootDashboard();
-  } else if(sessionPin&&(!SUPABASE_URL||!SUPABASE_KEY)){
-    // Has session but no Supabase config — use local
-    CURRENT_PIN=sessionPin;
-    document.getElementById('pin-overlay').classList.add('hidden');
-    loadStateLocal();
-    setSyncStatus('offline');
-    bootDashboard();
-  } else {
-    // Show PIN screen — pre-fill Supabase fields if config exists
-    const sbUrlEl=document.getElementById('sb-url');
-    const sbKeyEl=document.getElementById('sb-key');
-    if(sbUrlEl&&SUPABASE_URL) sbUrlEl.value=SUPABASE_URL;
-    if(sbKeyEl&&SUPABASE_KEY) sbKeyEl.value=SUPABASE_KEY;
-    // Auto-show Supabase config if not yet configured
-    if(!SUPABASE_URL||!SUPABASE_KEY){
-      toggleSupabaseConfig();
-      document.getElementById('pin-sub').textContent='First time? Paste your Supabase details below, then set a PIN. Next time just enter your PIN.';
+    const sessionPin=sessionStorage.getItem(PIN_SESSION_KEY);
+
+    if(sessionPin){
+      // Already authenticated this session — skip PIN screen
+      CURRENT_PIN=sessionPin;
+      // Try remote load if Supabase is configured
+      if(SUPABASE_URL&&SUPABASE_KEY){
+        try{
+          const loaded=await loadStateRemote(sessionPin);
+          if(!loaded) loadStateLocal();
+        }catch(e){ loadStateLocal(); }
+      } else {
+        loadStateLocal();
+        setSyncStatus('offline');
+      }
+      document.getElementById('pin-overlay').classList.add('hidden');
+      bootDashboard();
+    } else {
+      // Show PIN screen
+      showPinScreen(!SUPABASE_URL||!SUPABASE_KEY);
+    }
+  }catch(err){
+    // Fallback: if anything crashes, show PIN screen anyway
+    console.error('Init error:',err);
+    try{ showPinScreen(true); }catch(e){
+      // Last resort: just hide overlay and boot with local data
+      loadStateLocal();
+      document.getElementById('pin-overlay').classList.add('hidden');
+      bootDashboard();
     }
   }
 };
