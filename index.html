@@ -297,6 +297,7 @@ width:100%;min-height:80px;padding:12px;background:var(--bg3);border:1px solid v
   <div class="topbar">
     <div class="topbar-title" id="topbar-title">Dashboard</div>
     <div class="overall-pill">Overall: <strong id="overall-pct">0%</strong> complete</div>
+    <span id="sync-badge" style="font-size:11px;color:#34d399;opacity:0;transition:opacity 0.3s;margin-right:4px"></span>
     <div class="phase-pill" id="phase-indicator">Phase 1</div>
   </div>
 
@@ -466,26 +467,128 @@ width:100%;min-height:80px;padding:12px;background:var(--bg3);border:1px solid v
 
 <script>
 // ============================================================
-// STATE & STORAGE
+// STATE & STORAGE — localStorage + Supabase sync
+// Paste your Supabase URL and anon key below once, then upload to GitHub.
+// No login, no PIN — just opens and syncs automatically.
 // ============================================================
-const STORAGE_KEY = 'neetpg2026_v3';
+const STORAGE_KEY  = 'neetpg2026_v3';
+const SB_URL       = 'https://mmtvkhfsjogjynuycjiz.supabase.co';
+const SB_KEY       = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1tdHZraGZzam9nanludXljaml6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2OTQ5OTAsImV4cCI6MjA5ODI3MDk5MH0.IJC0xg1-7SfSRN-3N5Bclo1tfSNgxg8552OVAp1i4fU';
+const SB_ROW_ID    = 'roshan_neetpg_2026';  // fixed row — change if you want
+
 let state = {
   topics:{}, days:{}, mcqs:{}, mockScores:{},
   notes:{global:'',mock:''},
   examDate:'2026-08-08',
   startDate:'2026-06-27',
-  dailyMCQ:{},         // {dateStr:{s1,s2,s3}} — per-slot daily question counts
-  dailyMCQTarget:{},   // {dateStr:number} — user-editable daily target
-  schedNotes:{},       // {dateStr:string} — per-day schedule notes
-  subjects: null // overridden by default if null
+  dailyMCQ:{},
+  dailyMCQTarget:{},
+  schedNotes:{},
+  subjects: null
 };
 
-function loadState(){
-  try{ const s=localStorage.getItem(STORAGE_KEY); if(s) state=Object.assign({},state,JSON.parse(s)); }catch(e){}
-}
-function saveState(){
+// ── localStorage (instant, always works) ──
+function saveLocal(){
   try{ localStorage.setItem(STORAGE_KEY,JSON.stringify(state)); }catch(e){}
 }
+function loadLocal(){
+  try{ const s=localStorage.getItem(STORAGE_KEY); if(s) state=Object.assign({},state,JSON.parse(s)); }catch(e){}
+}
+
+// ── Supabase helpers (only run on https://) ──
+function sbReady(){
+  return SB_URL!=='YOUR_SUPABASE_URL' && SB_KEY!=='YOUR_SUPABASE_ANON_KEY'
+         && location.protocol==='https:';
+}
+function sbFetch(path,method,body){
+  if(!sbReady()) return Promise.resolve(null);
+  return fetch(SB_URL+'/rest/v1'+path,{
+    method:method||'GET',
+    headers:{
+      'apikey':SB_KEY,
+      'Authorization':'Bearer '+SB_KEY,
+      'Content-Type':'application/json',
+      'Prefer':'return=representation'
+    },
+    body:body?JSON.stringify(body):undefined
+  }).then(function(r){ return r.ok?r.json():null; }).catch(function(){ return null; });
+}
+function sbLoad(){
+  return sbFetch('/neetpg_data?row_id=eq.'+SB_ROW_ID+'&select=data','GET',null)
+    .then(function(rows){
+      if(rows&&rows.length&&rows[0].data){
+        try{
+          var remote=typeof rows[0].data==='string'?JSON.parse(rows[0].data):rows[0].data;
+          state=Object.assign({},state,remote);
+          saveLocal();
+          showSyncBadge('synced');
+          return true;
+        }catch(e){}
+      }
+      return false;
+    });
+}
+var sbSaveTimer=null;
+function sbSave(){
+  if(!sbReady()) return;
+  clearTimeout(sbSaveTimer);
+  sbSaveTimer=setTimeout(function(){
+    showSyncBadge('syncing');
+    sbFetch('/neetpg_data?row_id=eq.'+SB_ROW_ID,'PATCH',{data:state})
+      .then(function(r){
+        if(!r){ // row doesn't exist yet — insert
+          return sbFetch('/neetpg_data','POST',{row_id:SB_ROW_ID,data:state});
+        }
+      })
+      .then(function(){ showSyncBadge('synced'); })
+      .catch(function(){ showSyncBadge('offline'); });
+  },1500);
+}
+
+// ── sync badge ──
+function showSyncBadge(status){
+  var el=document.getElementById('sync-badge');
+  if(!el) return;
+  el.style.opacity='1';
+  el.textContent=status==='syncing'?'☁ Syncing…':status==='synced'?'✓ Synced':'⚠ Offline';
+  el.style.color=status==='synced'?'#34d399':status==='syncing'?'#fbbf24':'#9098b8';
+  if(status==='synced') setTimeout(function(){ el.style.opacity='0'; },3000);
+}
+
+// ── unified save (local immediately + remote after 1.5s) ──
+function saveState(){
+  saveLocal();
+  sbSave();
+}
+
+// ── load on startup ──
+function loadState(){
+  loadLocal(); // show cached data instantly
+  if(sbReady()){
+    showSyncBadge('syncing');
+    sbLoad().then(function(loaded){
+      if(loaded) refreshDashboard(); // update UI with fresher remote data
+    });
+  }
+}
+
+// ── refresh UI after remote load ──
+function refreshDashboard(){
+  try{
+    document.getElementById('exam-date-picker').value=state.examDate;
+    document.getElementById('start-date-picker').value=state.startDate;
+    var gn=document.getElementById('global-notes');if(gn)gn.value=state.notes.global||'';
+    var mn=document.getElementById('mock-notes');if(mn)mn.value=state.notes.mock||'';
+    renderMocks();
+    renderSchedule();
+    renderOverviewBars();
+    renderTodaysPlan();
+    updateSubjectProgress();
+    updateDayStats();
+  }catch(e){}
+}
+
+
 
 // ============================================================
 // DEFAULT SYLLABUS
@@ -1852,8 +1955,10 @@ function showToast(msg){
 }
 
 function confirmReset(){
-  if(confirm('Reset ALL progress? This cannot be undone.'))
-    {localStorage.removeItem(STORAGE_KEY);location.reload();}
+  if(confirm('Reset ALL progress? This cannot be undone.')){
+    localStorage.removeItem(STORAGE_KEY);
+    location.reload();
+  }
 }
 
 // ============================================================
