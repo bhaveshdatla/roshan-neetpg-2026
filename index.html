@@ -352,6 +352,7 @@ width:100%;min-height:80px;padding:12px;background:var(--bg3);border:1px solid v
   </nav>
   <div class="sidebar-footer">
     <button class="reset-btn" style="background:rgba(52,211,153,0.1);border-color:rgba(52,211,153,0.25);color:#34d399" onclick="exportData()">⬇ Export my data</button>
+    <button class="reset-btn" style="background:rgba(167,139,250,0.1);border-color:rgba(167,139,250,0.25);color:#a78bfa" onclick="forcePushToCloud()">☁ Push local → Cloud</button>
     <label class="reset-btn" style="background:rgba(108,142,245,0.1);border-color:rgba(108,142,245,0.25);color:#6c8ef5;cursor:pointer;text-align:center">
       ⬆ Import data
       <input type="file" accept=".json" onchange="importData(this)" style="display:none"/>
@@ -2092,6 +2093,31 @@ function showToast(msg){
   const t=document.getElementById('toast');
   t.textContent=msg;t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),1800);
+}
+
+function forcePushToCloud(){
+  if(!sbReady()){
+    showToast('⚠ Open the GitHub Pages link (https://) to sync to cloud');
+    return;
+  }
+  showSyncBadge('syncing');
+  showToast('Pushing your data to cloud…');
+  sbFetch('/neetpg_data?row_id=eq.'+SB_ROW_ID,'PATCH',{data:state})
+    .then(function(r){
+      if(!r){
+        return sbFetch('/neetpg_data','POST',{row_id:SB_ROW_ID,data:state});
+      }
+      return r;
+    })
+    .then(function(){
+      localStorage.setItem(MIGRATED_KEY,'1');
+      showSyncBadge('synced');
+      showToast('✓ All your data is now in the cloud! Open on any device.');
+    })
+    .catch(function(){
+      showSyncBadge('offline');
+      showToast('✗ Cloud sync failed — check your connection');
+    });
 }
 
 function exportData(){
