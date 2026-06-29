@@ -245,9 +245,72 @@ width:100%;min-height:80px;padding:12px;background:var(--bg3);border:1px solid v
 ::-webkit-scrollbar{width:6px;}
 ::-webkit-scrollbar-track{background:transparent;}
 ::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:3px;}
+
+/* ── MOBILE HAMBURGER BUTTON ── */
+.mob-menu-btn{display:none;position:fixed;top:10px;left:10px;z-index:300;width:38px;height:38px;border-radius:9px;border:1px solid var(--border2);background:var(--bg2);color:var(--text);font-size:18px;cursor:pointer;align-items:center;justify-content:center;}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:149;}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  /* Show hamburger, hide sidebar by default */
+  .mob-menu-btn{display:flex;}
+  .sidebar{transform:translateX(-100%);transition:transform 0.25s ease;z-index:150;width:240px;}
+  .sidebar.mob-open{transform:translateX(0);}
+  .sidebar-overlay.mob-open{display:block;}
+
+  /* Main takes full width */
+  .main{margin-left:0;}
+  .topbar{padding:10px 12px 10px 58px;flex-wrap:wrap;gap:8px;}
+  .topbar-title{font-size:14px;}
+  .overall-pill{font-size:11px;padding:4px 10px;}
+  .phase-pill{font-size:10px;padding:3px 8px;}
+  .page{padding:12px;}
+
+  /* Grids → single column */
+  .grid-4{grid-template-columns:1fr 1fr;gap:8px;}
+  .grid-2{grid-template-columns:1fr;gap:10px;}
+  .mock-grid{grid-template-columns:1fr 1fr;gap:8px;}
+
+  /* Schedule table — scrollable */
+  .schedule-wrap{overflow-x:auto;}
+  .sched-table{min-width:600px;font-size:11px;}
+  .sched-table th,.sched-table td{padding:7px 8px;}
+
+  /* Subject blocks */
+  .subject-header{padding:10px 12px;}
+  .topic-item{padding:4px 10px;}
+
+  /* Stats */
+  .stat-card{padding:12px 14px;}
+  .stat-val{font-size:22px;}
+
+  /* Bar charts */
+  .bar-h-label{width:100px;font-size:11px;}
+
+  /* MCQ tracker */
+  .mcq-day-grid{grid-template-columns:1fr 1fr;}
+  .mcq-summary-row{gap:10px;}
+  .mcq-summary-num{font-size:16px;}
+
+  /* Sched header */
+  .sched-header{flex-direction:column;align-items:flex-start;gap:8px;}
+
+  /* Priority matrix */
+  #priority-matrix{gap:6px;}
+
+  /* Hide some less important columns on small screens */
+  .sched-table .hide-mobile{display:none;}
+}
+@media(max-width:400px){
+  .grid-4{grid-template-columns:1fr;}
+  .mock-grid{grid-template-columns:1fr;}
+  .mcq-day-grid{grid-template-columns:1fr;}
+}
 </style>
 </head>
 <body>
+<button class="mob-menu-btn" onclick="toggleMobileMenu()" id="mob-btn">☰</button>
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeMobileMenu()"></div>
 
 <!-- SIDEBAR -->
 <aside class="sidebar">
@@ -479,6 +542,15 @@ width:100%;min-height:80px;padding:12px;background:var(--bg3);border:1px solid v
 const STORAGE_KEY  = 'neetpg2026_v3';
 const SB_URL       = 'https://mmtvkhfsjogjynuycjiz.supabase.co';
 const SB_KEY       = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1tdHZraGZzam9nanludXljaml6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2OTQ5OTAsImV4cCI6MjA5ODI3MDk5MH0.IJC0xg1-7SfSRN-3N5Bclo1tfSNgxg8552OVAp1i4fU';
+
+// ── Always use LOCAL timezone for dates (fixes UTC offset showing wrong day) ──
+function localDateStr(d){
+  var dt=d||new Date();
+  var y=dt.getFullYear();
+  var m=String(dt.getMonth()+1).padStart(2,'0');
+  var day=String(dt.getDate()).padStart(2,'0');
+  return y+'-'+m+'-'+day;
+}
 const SB_ROW_ID    = 'roshan_neetpg_2026';  // fixed row — change if you want
 
 let state = {
@@ -624,7 +696,7 @@ function loadState(){
   });
 }
 
-// ── refresh UI after remote load ──
+// ── refresh full UI after remote load ──
 function refreshDashboard(){
   try{
     document.getElementById('exam-date-picker').value=state.examDate;
@@ -637,7 +709,23 @@ function refreshDashboard(){
     renderTodaysPlan();
     updateSubjectProgress();
     updateDayStats();
-  }catch(e){}
+    updateCountdown();
+    updatePhaseIndicator();
+    // re-render any open subject page
+    var activePage=document.querySelector('.page.active');
+    if(activePage){
+      var pid=activePage.id.replace('page-','');
+      var subIds=['medicine','surgery','pharmacology','pathology','microbiology','obg','ophthalmology','paediatrics','anatomy','physiology','biochemistry','misc'];
+      if(subIds.indexOf(pid)>-1) renderSubjectPage(pid,true);
+    }
+    // sync MCQ counter
+    var allDailyData=Object.values(state.dailyMCQ||{});
+    var dailyTotal=allDailyData.reduce(function(s,d){return s+(d.s1||0)+(d.s2||0)+(d.s3||0);},0);
+    var dbMcq=document.getElementById('db-mcqs');
+    if(dbMcq&&dailyTotal>0)dbMcq.textContent=dailyTotal.toLocaleString();
+    var barMCQ=document.getElementById('db-bar-mcqs');
+    if(barMCQ&&dailyTotal>0)barMCQ.style.width=Math.min(100,Math.round((dailyTotal/25000)*100))+'%';
+  }catch(e){console.error('refreshDashboard error:',e);}
 }
 
 
@@ -1125,7 +1213,7 @@ function generateSchedule(){
   for(let i=0;i<totalDays;i++){
     const d=new Date(start);
     d.setDate(d.getDate()+i);
-    const dateStr=d.toISOString().split('T')[0];
+    const dateStr=localDateStr(d);
     const pct=(i/totalDays)*100;
     const dow=d.getDay(); // 0=Sun,6=Sat
 
@@ -1245,7 +1333,7 @@ function renderSchedule(){
   const schedule=generateSchedule();
   if(!schedule.length){container.innerHTML='<div style="padding:20px;color:var(--text3)">Set exam date and start date above, then click Generate.</div>';return;}
 
-  const todayStr=new Date().toISOString().split('T')[0];
+  const todayStr=localDateStr();
   let html='<table class="sched-table"><thead><tr><th>Date</th><th>Phase</th><th>Slot 1 + 2 — Main subjects</th><th>Slot 3 — Weak drill (daily)</th><th>MCQs</th><th>Notes</th><th style="text-align:center">Done</th></tr></thead><tbody>';
 
   schedule.forEach(day=>{
@@ -1289,7 +1377,7 @@ function renderDailyMCQTracker(){
   if(!grid)return;
 
   // Show last 7 days + today + next 2 days = 10 day window centred on today
-  const todayStr=new Date().toISOString().split('T')[0];
+  const todayStr=localDateStr();
   const schedule=generateSchedule();
   if(!schedule.length){grid.innerHTML='<div style="color:var(--text3);font-size:12px">Generate schedule first to use this tracker.</div>';return;}
 
@@ -1944,7 +2032,7 @@ function renderHeatmap(){
   let html='';
   for(let i=0;i<totalDays;i++){
     const d=new Date(start);d.setDate(d.getDate()+i);
-    const ds=d.toISOString().split('T')[0];
+    const ds=localDateStr(d);
     const done=state.days[ds];
     const label=d.toLocaleDateString('en-IN',{day:'numeric',month:'short'});
     html+=`<div class="hm-cell${done?' hm-4':''}" title="${label}${done?' ✓':''}" onclick="toggleDay('${ds}')"></div>`;
@@ -1954,7 +2042,7 @@ function renderHeatmap(){
 
 function renderTodaysPlan(){
   const el=document.getElementById('todays-plan');if(!el)return;
-  const todayStr=new Date().toISOString().split('T')[0];
+  const todayStr=localDateStr();
   const schedule=generateSchedule();
   const today=schedule.find(d=>d.date===todayStr);
   if(today){
@@ -2010,7 +2098,7 @@ function exportData(){
   const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);
-  a.download='neetpg_backup_'+new Date().toISOString().slice(0,10)+'.json';
+  a.download='neetpg_backup_'+localDateStr()+'.json';
   a.click();
   showToast('✓ Data exported! Import this file on GitHub Pages version.');
 }
@@ -2054,6 +2142,20 @@ function confirmReset(){
 // ============================================================
 // INIT
 // ============================================================
+// ── Mobile menu ──
+function toggleMobileMenu(){
+  document.querySelector('.sidebar').classList.toggle('mob-open');
+  document.getElementById('sidebar-overlay').classList.toggle('mob-open');
+}
+function closeMobileMenu(){
+  document.querySelector('.sidebar').classList.remove('mob-open');
+  document.getElementById('sidebar-overlay').classList.remove('mob-open');
+}
+// Close mobile menu when a nav item is tapped
+document.addEventListener('click',function(e){
+  if(e.target.closest('.nav-item')&&window.innerWidth<=768) closeMobileMenu();
+});
+
 window.onload=function(){
   loadState();
 
