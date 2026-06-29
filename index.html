@@ -288,6 +288,11 @@ width:100%;min-height:80px;padding:12px;background:var(--bg3);border:1px solid v
     <a class="nav-item" onclick="showPage('strategy',this)" href="#"><span class="nav-dot" style="background:#6c8ef5"></span><span>Strategy</span></a>
   </nav>
   <div class="sidebar-footer">
+    <button class="reset-btn" style="background:rgba(52,211,153,0.1);border-color:rgba(52,211,153,0.25);color:#34d399" onclick="exportData()">⬇ Export my data</button>
+    <label class="reset-btn" style="background:rgba(108,142,245,0.1);border-color:rgba(108,142,245,0.25);color:#6c8ef5;cursor:pointer;text-align:center">
+      ⬆ Import data
+      <input type="file" accept=".json" onchange="importData(this)" style="display:none"/>
+    </label>
     <button class="reset-btn" onclick="confirmReset()">⚠ Reset All Data</button>
   </div>
 </aside>
@@ -561,15 +566,62 @@ function saveState(){
   sbSave();
 }
 
-// ── load on startup ──
+const MIGRATED_KEY = 'neetpg2026_migrated'; // flag so migration only runs once
+
+// ── load on startup — smart merge: local + remote ──
 function loadState(){
-  loadLocal(); // show cached data instantly
-  if(sbReady()){
-    showSyncBadge('syncing');
-    sbLoad().then(function(loaded){
-      if(loaded) refreshDashboard(); // update UI with fresher remote data
-    });
-  }
+  loadLocal(); // always show local data instantly (covers offline + first paint)
+
+  if(!sbReady()) return; // local file:// — done
+
+  showSyncBadge('syncing');
+  sbLoad().then(function(remoteLoaded){
+
+    if(remoteLoaded){
+      // Supabase has data — check if local has NEWER data that hasn't been migrated yet
+      var alreadyMigrated = localStorage.getItem(MIGRATED_KEY);
+      if(!alreadyMigrated){
+        // First time connecting to Supabase — local data may be richer (brother's 2 days of work)
+        // Merge: local topics/days/scores take priority over empty remote
+        var localRaw = localStorage.getItem(STORAGE_KEY);
+        if(localRaw){
+          try{
+            var local = JSON.parse(localRaw);
+            var localTopicCount = Object.keys(local.topics||{}).length;
+            var remoteTopicCount = Object.keys(state.topics||{}).length;
+            if(localTopicCount > remoteTopicCount){
+              // Local has more data — merge local INTO remote (local wins)
+              state = Object.assign({}, state, local);
+              saveState(); // push merged data to Supabase
+              showSyncBadge('synced');
+              showToast('✓ Your local progress has been synced to cloud!');
+            }
+            localStorage.setItem(MIGRATED_KEY,'1');
+          }catch(e){}
+        }
+      }
+      refreshDashboard();
+
+    } else {
+      // Supabase is empty — first time ever. Push local data up.
+      var localRaw = localStorage.getItem(STORAGE_KEY);
+      if(localRaw){
+        try{
+          var local = JSON.parse(localRaw);
+          var hasData = Object.keys(local.topics||{}).length > 0
+                     || Object.keys(local.days||{}).length > 0
+                     || Object.keys(local.mockScores||{}).length > 0;
+          if(hasData){
+            state = Object.assign({}, state, local);
+            saveState(); // push to Supabase
+            showToast('✓ Your data has been backed up to cloud!');
+          }
+        }catch(e){}
+      }
+      localStorage.setItem(MIGRATED_KEY,'1');
+      refreshDashboard();
+    }
+  });
 }
 
 // ── refresh UI after remote load ──
@@ -1952,6 +2004,44 @@ function showToast(msg){
   const t=document.getElementById('toast');
   t.textContent=msg;t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),1800);
+}
+
+function exportData(){
+  const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='neetpg_backup_'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();
+  showToast('✓ Data exported! Import this file on GitHub Pages version.');
+}
+
+function importData(input){
+  const file=input.files[0];
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      const imported=JSON.parse(e.target.result);
+      state=Object.assign({},state,imported);
+      saveState(); // saves locally AND pushes to Supabase if on https://
+      showToast('✓ Data imported and synced to cloud!');
+      // refresh all UI
+      document.getElementById('exam-date-picker').value=state.examDate;
+      document.getElementById('start-date-picker').value=state.startDate;
+      const gn=document.getElementById('global-notes');if(gn)gn.value=state.notes.global||'';
+      const mn=document.getElementById('mock-notes');if(mn)mn.value=state.notes.mock||'';
+      renderMocks();
+      renderSchedule();
+      renderOverviewBars();
+      renderTodaysPlan();
+      updateSubjectProgress();
+      updateDayStats();
+    }catch(err){
+      showToast('✗ Invalid file — please use a backup JSON file');
+    }
+  };
+  reader.readAsText(file);
+  input.value=''; // reset so same file can be re-imported
 }
 
 function confirmReset(){
