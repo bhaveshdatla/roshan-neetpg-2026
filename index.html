@@ -198,8 +198,28 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .modal-input:focus{border-color:var(--accent);}
 .modal-row{display:flex;gap:8px;justify-content:flex-end;margin-top:6px;}
 
-/* NOTES */
-.notes-area{width:100%;min-height:80px;padding:12px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-size:13px;resize:vertical;outline:none;font-family:inherit;line-height:1.6;}
+/* DAILY MCQ TRACKER PANEL */
+.mcq-panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius2);padding:18px 20px;margin-bottom:16px;}
+.mcq-panel-title{font-size:13px;font-weight:600;color:var(--text2);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.mcq-day-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;}
+.mcq-day-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;}
+.mcq-day-label{font-size:11px;font-weight:600;color:var(--text3);margin-bottom:6px;display:flex;align-items:center;justify-content:space-between;}
+.mcq-day-label .today-tag{font-size:9px;background:var(--accent);color:#fff;padding:1px 6px;border-radius:8px;}
+.mcq-slots{display:flex;flex-direction:column;gap:5px;}
+.mcq-slot-row{display:flex;align-items:center;gap:6px;}
+.mcq-slot-label{font-size:10px;color:var(--text3);width:42px;flex-shrink:0;}
+.mcq-slot-input{flex:1;background:var(--bg);border:1px solid var(--border2);border-radius:5px;color:var(--text);font-size:12px;font-weight:600;padding:3px 7px;outline:none;text-align:center;}
+.mcq-slot-input:focus{border-color:var(--accent);}
+.mcq-slot-input.slot3{border-color:rgba(248,113,113,0.3);}
+.mcq-slot-input.slot3:focus{border-color:var(--red);}
+.mcq-day-total{display:flex;align-items:center;justify-content:space-between;margin-top:7px;padding-top:6px;border-top:1px solid var(--border);}
+.mcq-day-total-label{font-size:10px;color:var(--text3);}
+.mcq-day-total-val{font-size:13px;font-weight:700;color:var(--green);}
+.mcq-summary-row{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);}
+.mcq-summary-stat{text-align:center;}
+.mcq-summary-num{font-size:20px;font-weight:800;}
+.mcq-summary-lbl{font-size:10px;color:var(--text3);margin-top:1px;}
+width:100%;min-height:80px;padding:12px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-size:13px;resize:vertical;outline:none;font-family:inherit;line-height:1.6;}
 .notes-area:focus{border-color:var(--accent);}
 
 /* STRATEGY */
@@ -332,7 +352,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div class="page" id="page-schedule">
     <div class="section-hdr">
       <div class="section-icon" style="background:rgba(52,211,153,0.12)">📅</div>
-      <div><div class="section-title">Study Schedule</div><div class="section-sub">Auto-generated from your exam date · Mark days complete as you go</div></div>
+      <div><div class="section-title">Study Schedule</div><div class="section-sub">Auto-generated from your exam date · Mark days complete · Track daily MCQs per slot</div></div>
+    </div>
+
+    <!-- DAILY MCQ TRACKER PANEL -->
+    <div class="mcq-panel">
+      <div class="mcq-panel-title">
+        🔢 Daily MCQ Tracker — Questions solved per slot
+        <span style="margin-left:auto;font-size:11px;color:var(--text3)">Slot 1 = Main subject · Slot 2 = Secondary · Slot 3 = Weak drill (Opthal/Pharma)</span>
+      </div>
+      <div class="mcq-day-grid" id="mcq-day-grid"></div>
+      <div class="mcq-summary-row" id="mcq-summary-row"></div>
     </div>
     <div class="schedule-wrap">
       <div class="sched-header">
@@ -444,6 +474,9 @@ let state = {
   notes:{global:'',mock:''},
   examDate:'2026-08-08',
   startDate:'2026-06-27',
+  dailyMCQ:{},         // {dateStr:{s1,s2,s3}} — per-slot daily question counts
+  dailyMCQTarget:{},   // {dateStr:number} — user-editable daily target
+  schedNotes:{},       // {dateStr:string} — per-day schedule notes
   subjects: null // overridden by default if null
 };
 
@@ -1074,19 +1107,195 @@ function renderSchedule(){
       <td><span class="sday-chip ${day.chipCls}">${day.phase}</span></td>
       <td>${mainHtml}</td>
       <td>${weakHtml}</td>
-      <td style="font-size:12px;color:var(--text3)">${day.mcq>0?day.mcq+'Q':'—'}</td>
+      <td>${day.isMock?'<span style="font-size:11px;color:var(--text3)">Mock</span>':`<input type="number" min="0" max="2000" placeholder="${day.mcq}" value="${(state.dailyMCQTarget&&state.dailyMCQTarget[day.date])||''}" style="width:64px;background:var(--bg3);border:1px solid var(--border2);border-radius:5px;color:var(--text);font-size:12px;font-weight:600;padding:3px 6px;outline:none;text-align:center;" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border2)'" oninput="saveMCQTarget('${day.date}',this.value)" />`}</td>
       <td><input class="sched-notes-input" placeholder="add note..." value="${dayNote.replace(/"/g,'&quot;')}" oninput="saveSchedNote('${day.date}',this.value)"/></td>
       <td style="text-align:center"><div class="day-check${isDone?' checked':''}" id="daychk-${day.date}" onclick="toggleDay('${day.date}')"></div></td>
     </tr>`;
   });
   html+='</tbody></table>';
   container.innerHTML=html;
+  renderDailyMCQTracker();
 }
 
 function saveSchedNote(dateStr,val){
   if(!state.schedNotes)state.schedNotes={};
   state.schedNotes[dateStr]=val;
   saveState();
+}
+
+// ============================================================
+// DAILY MCQ TRACKER (per slot per day)
+// stored in state.dailyMCQ[dateStr] = {s1:N, s2:N, s3:N}
+// completely separate key from existing state.mcqs (subject totals)
+// ============================================================
+function renderDailyMCQTracker(){
+  const grid=document.getElementById('mcq-day-grid');
+  const summary=document.getElementById('mcq-summary-row');
+  if(!grid)return;
+
+  // Show last 7 days + today + next 2 days = 10 day window centred on today
+  const todayStr=new Date().toISOString().split('T')[0];
+  const schedule=generateSchedule();
+  if(!schedule.length){grid.innerHTML='<div style="color:var(--text3);font-size:12px">Generate schedule first to use this tracker.</div>';return;}
+
+  // Build window: last 3 days, today, next 3 days (7 cards)
+  const todayIdx=schedule.findIndex(d=>d.date===todayStr);
+  const startIdx=Math.max(0,todayIdx-3);
+  const endIdx=Math.min(schedule.length-1,todayIdx+3);
+  const window=schedule.slice(startIdx,endIdx+1);
+
+  if(!state.dailyMCQ)state.dailyMCQ={};
+
+  let grandTotal=0,grandDays=0;
+  let html='';
+
+  window.forEach(day=>{
+    const isToday=day.date===todayStr;
+    const data=state.dailyMCQ[day.date]||{s1:0,s2:0,s3:0};
+    const dayTotal=(data.s1||0)+(data.s2||0)+(data.s3||0);
+    if(dayTotal>0)grandTotal+=dayTotal,grandDays++;
+    const label=day.dateObj.toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'});
+    const savedTarget=state.dailyMCQTarget&&state.dailyMCQTarget[day.date]!=null?parseInt(state.dailyMCQTarget[day.date]):null;
+    const targetQ=day.isMock?0:(savedTarget!==null?savedTarget:day.mcq);
+    const pct=targetQ>0?Math.min(100,Math.round((dayTotal/targetQ)*100)):0;
+    const barColor=pct>=100?'var(--green)':pct>=60?'var(--amber)':'var(--accent)';
+
+    html+=`<div class="mcq-day-card" style="${isToday?'border-color:rgba(108,142,245,0.4);background:rgba(108,142,245,0.06)':''}">
+      <div class="mcq-day-label">
+        <span>${label}</span>
+        ${isToday?'<span class="today-tag">TODAY</span>':''}
+      </div>
+      <div class="mcq-slot-row" style="margin-bottom:6px">
+        <span class="mcq-slot-label" style="color:var(--text3)">Target</span>
+        <input type="number" min="0" max="2000" placeholder="${day.isMock?'Mock':day.mcq}"
+          value="${savedTarget!==null?savedTarget:''}"
+          class="mcq-slot-input" style="border-color:rgba(108,142,245,0.3)"
+          oninput="saveMCQTarget('${day.date}',this.value);updateDayTrackerCard('${day.date}')"/>
+        <span style="font-size:10px;color:var(--text3)">Qs</span>
+      </div>
+      ${day.isMock?`<div style="font-size:11px;color:var(--amber);text-align:center;padding:6px 0">Mock day</div>`:`
+      <div class="mcq-slots">
+        <div class="mcq-slot-row">
+          <span class="mcq-slot-label">Slot 1</span>
+          <input class="mcq-slot-input" type="number" min="0" max="999" placeholder="0"
+            value="${data.s1||''}"
+            oninput="saveDailyMCQ('${day.date}','s1',this.value)"
+            ${!isToday&&day.date<todayStr?'':''}/>
+          <span style="font-size:10px;color:var(--text3)">Qs</span>
+        </div>
+        <div class="mcq-slot-row">
+          <span class="mcq-slot-label">Slot 2</span>
+          <input class="mcq-slot-input" type="number" min="0" max="999" placeholder="0"
+            value="${data.s2||''}"
+            oninput="saveDailyMCQ('${day.date}','s2',this.value)"/>
+          <span style="font-size:10px;color:var(--text3)">Qs</span>
+        </div>
+        <div class="mcq-slot-row">
+          <span class="mcq-slot-label" style="color:var(--red)">Slot 3</span>
+          <input class="mcq-slot-input slot3" type="number" min="0" max="999" placeholder="0"
+            value="${data.s3||''}"
+            oninput="saveDailyMCQ('${day.date}','s3',this.value)"/>
+          <span style="font-size:10px;color:var(--text3)">Qs</span>
+        </div>
+      </div>
+      <div class="mcq-day-total">
+        <span class="mcq-day-total-label">Total solved</span>
+        <span class="mcq-day-total-val" id="mcq-day-total-${day.date}">${dayTotal} Qs</span>
+      </div>
+      <div style="margin-top:6px">
+        <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--text3);margin-bottom:3px">
+          <span>vs target</span><span id="ppct-${day.date}">${targetQ>0?pct+'%':'set target ↑'}</span>
+        </div>
+        <div class="prog-bar-wrap" style="height:4px"><div class="prog-bar" id="pbar-${day.date}" style="width:${pct}%;background:${barColor}"></div></div>
+      </div>
+      `}
+    </div>`;
+  });
+
+  grid.innerHTML=html;
+
+  // Summary stats
+  const allData=Object.values(state.dailyMCQ||{});
+  const totalAllTime=allData.reduce((sum,d)=>sum+(d.s1||0)+(d.s2||0)+(d.s3||0),0);
+  const totalSlot3=allData.reduce((sum,d)=>sum+(d.s3||0),0);
+  const activeDays=allData.filter(d=>(d.s1||0)+(d.s2||0)+(d.s3||0)>0).length;
+  const avg=activeDays>0?Math.round(totalAllTime/activeDays):0;
+
+  summary.innerHTML=`
+    <div class="mcq-summary-stat"><div class="mcq-summary-num c-green">${totalAllTime.toLocaleString()}</div><div class="mcq-summary-lbl">Total MCQs solved</div></div>
+    <div class="mcq-summary-stat"><div class="mcq-summary-num c-amber">${avg}</div><div class="mcq-summary-lbl">Avg MCQs/day</div></div>
+    <div class="mcq-summary-stat"><div class="mcq-summary-num c-red">${totalSlot3.toLocaleString()}</div><div class="mcq-summary-lbl">Slot 3 weak-drill Qs</div></div>
+    <div class="mcq-summary-stat"><div class="mcq-summary-num c-accent">${activeDays}</div><div class="mcq-summary-lbl">Study days logged</div></div>
+    <div style="flex:1;display:flex;align-items:center">
+      <div style="width:100%">
+        <div style="font-size:10px;color:var(--text3);margin-bottom:4px">Overall progress toward 25,000Q target</div>
+        <div class="prog-bar-wrap" style="height:8px"><div class="prog-bar prog-green" style="width:${Math.min(100,Math.round((totalAllTime/25000)*100))}%"></div></div>
+        <div style="font-size:10px;color:var(--text3);margin-top:3px">${totalAllTime.toLocaleString()} / 25,000</div>
+      </div>
+    </div>`;
+}
+
+function saveDailyMCQ(dateStr,slot,val){
+  if(!state.dailyMCQ)state.dailyMCQ={};
+  if(!state.dailyMCQ[dateStr])state.dailyMCQ[dateStr]={s1:0,s2:0,s3:0};
+  state.dailyMCQ[dateStr][slot]=parseInt(val)||0;
+  saveState();
+
+  // Update the day total live without re-rendering the whole panel
+  const data=state.dailyMCQ[dateStr];
+  const total=(data.s1||0)+(data.s2||0)+(data.s3||0);
+  const totalEl=document.getElementById('mcq-day-total-'+dateStr);
+  if(totalEl)totalEl.textContent=total+' Qs';
+
+  // Update progress bar for this day
+  updateDayTrackerCard(dateStr);
+
+  // Refresh summary row only
+  const allData=Object.values(state.dailyMCQ);
+  const totalAllTime=allData.reduce((sum,d)=>sum+(d.s1||0)+(d.s2||0)+(d.s3||0),0);
+  const totalSlot3=allData.reduce((sum,d)=>sum+(d.s3||0),0);
+  const activeDays=allData.filter(d=>(d.s1||0)+(d.s2||0)+(d.s3||0)>0).length;
+  const avg=activeDays>0?Math.round(totalAllTime/activeDays):0;
+  const summaryEl=document.getElementById('mcq-summary-row');
+  if(summaryEl){
+    summaryEl.innerHTML=`
+      <div class="mcq-summary-stat"><div class="mcq-summary-num c-green">${totalAllTime.toLocaleString()}</div><div class="mcq-summary-lbl">Total MCQs solved</div></div>
+      <div class="mcq-summary-stat"><div class="mcq-summary-num c-amber">${avg}</div><div class="mcq-summary-lbl">Avg MCQs/day</div></div>
+      <div class="mcq-summary-stat"><div class="mcq-summary-num c-red">${totalSlot3.toLocaleString()}</div><div class="mcq-summary-lbl">Slot 3 weak-drill Qs</div></div>
+      <div class="mcq-summary-stat"><div class="mcq-summary-num c-accent">${activeDays}</div><div class="mcq-summary-lbl">Study days logged</div></div>
+      <div style="flex:1;display:flex;align-items:center">
+        <div style="width:100%">
+          <div style="font-size:10px;color:var(--text3);margin-bottom:4px">Overall progress toward 25,000Q target</div>
+          <div class="prog-bar-wrap" style="height:8px"><div class="prog-bar prog-green" style="width:${Math.min(100,Math.round((totalAllTime/25000)*100))}%"></div></div>
+          <div style="font-size:10px;color:var(--text3);margin-top:3px">${totalAllTime.toLocaleString()} / 25,000</div>
+        </div>
+      </div>`;
+  }
+
+  // Also sync the dashboard MCQ counter display (uses same total)
+  const dbMcq=document.getElementById('db-mcqs');
+  if(dbMcq)dbMcq.textContent=totalAllTime.toLocaleString();
+  const barMCQ=document.getElementById('db-bar-mcqs');
+  if(barMCQ)barMCQ.style.width=Math.min(100,Math.round((totalAllTime/25000)*100))+'%';
+}
+
+function saveMCQTarget(dateStr,val){
+  if(!state.dailyMCQTarget)state.dailyMCQTarget={};
+  state.dailyMCQTarget[dateStr]=parseInt(val)||0;
+  saveState();
+}
+
+function updateDayTrackerCard(dateStr){
+  // Live-update the progress bar inside the day card when target changes
+  const data=state.dailyMCQ&&state.dailyMCQ[dateStr]?state.dailyMCQ[dateStr]:{s1:0,s2:0,s3:0};
+  const dayTotal=(data.s1||0)+(data.s2||0)+(data.s3||0);
+  const targetQ=state.dailyMCQTarget&&state.dailyMCQTarget[dateStr]?parseInt(state.dailyMCQTarget[dateStr]):0;
+  const pct=targetQ>0?Math.min(100,Math.round((dayTotal/targetQ)*100)):0;
+  const barColor=pct>=100?'var(--green)':pct>=60?'var(--amber)':'var(--accent)';
+  const barEl=document.getElementById('pbar-'+dateStr);
+  const pctEl=document.getElementById('ppct-'+dateStr);
+  if(barEl)barEl.style.cssText=`width:${pct}%;background:${barColor}`;
+  if(pctEl)pctEl.textContent=pct+'%';
 }
 
 // ============================================================
@@ -1629,7 +1838,7 @@ function showPage(id,el){
   // Lazy render subject pages
   const subIds=['medicine','surgery','pharmacology','pathology','microbiology','obg','ophthalmology','paediatrics','anatomy','physiology','biochemistry','misc'];
   if(subIds.includes(id))renderSubjectPage(id);
-  if(id==='schedule')renderSchedule();
+  if(id==='schedule'){renderSchedule();renderDailyMCQTracker();}
   if(id==='progress'){renderProgressBars();renderPriorityMatrix();renderHeatmap();}
 }
 
@@ -1670,6 +1879,14 @@ window.onload=function(){
   updateDayStats();
   updateCountdown();
   updatePhaseIndicator();
+
+  // Sync dashboard MCQ counter from dailyMCQ totals (preserves existing tracked data)
+  const allDailyData=Object.values(state.dailyMCQ||{});
+  const dailyTotal=allDailyData.reduce((sum,d)=>sum+(d.s1||0)+(d.s2||0)+(d.s3||0),0);
+  const dbMcq=document.getElementById('db-mcqs');
+  if(dbMcq&&dailyTotal>0)dbMcq.textContent=dailyTotal.toLocaleString();
+  const barMCQ=document.getElementById('db-bar-mcqs');
+  if(barMCQ&&dailyTotal>0)barMCQ.style.width=Math.min(100,Math.round((dailyTotal/25000)*100))+'%';
 
   setInterval(updateCountdown,60000);
 };
