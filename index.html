@@ -242,14 +242,92 @@ width:100%;min-height:80px;padding:12px;background:var(--bg3);border:1px solid v
 .toast{position:fixed;bottom:24px;right:24px;z-index:999;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);padding:10px 16px;font-size:13px;color:var(--text);opacity:0;transform:translateY(10px);transition:all 0.3s;pointer-events:none;}
 .toast.show{opacity:1;transform:translateY(0);}
 
-::-webkit-scrollbar{width:6px;}
-::-webkit-scrollbar-track{background:transparent;}
-::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:3px;}
-</style>
+/* PIN SCREEN */
+.pin-overlay{position:fixed;inset:0;background:var(--bg);z-index:1000;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:0;}
+.pin-overlay.hidden{display:none;}
+.pin-box{background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:36px 40px;width:100%;max-width:380px;text-align:center;}
+.pin-logo{font-size:32px;margin-bottom:4px;}
+.pin-title{font-size:20px;font-weight:800;margin-bottom:4px;color:var(--text);}
+.pin-sub{font-size:13px;color:var(--text3);margin-bottom:28px;line-height:1.5;}
+.pin-dots{display:flex;justify-content:center;gap:12px;margin-bottom:24px;}
+.pin-dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--border2);background:transparent;transition:all 0.2s;}
+.pin-dot.filled{background:var(--accent);border-color:var(--accent);}
+.pin-dot.error{background:var(--red);border-color:var(--red);}
+.pin-keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+.pin-key{padding:16px;border-radius:12px;border:1px solid var(--border2);background:var(--bg3);color:var(--text);font-size:20px;font-weight:600;cursor:pointer;transition:all 0.15s;-webkit-tap-highlight-color:transparent;}
+.pin-key:hover{background:var(--bg4);border-color:var(--border2);}
+.pin-key:active{transform:scale(0.94);background:rgba(108,142,245,0.15);border-color:var(--accent);}
+.pin-key.del{font-size:18px;color:var(--text2);}
+.pin-key.enter{background:var(--accent);border-color:var(--accent);color:#fff;font-size:14px;font-weight:700;}
+.pin-key.enter:hover{background:var(--accent2);}
+.pin-msg{font-size:12px;color:var(--text3);min-height:18px;transition:color 0.2s;}
+.pin-msg.error{color:var(--red);}
+.pin-msg.success{color:var(--green);}
+.pin-toggle{margin-top:14px;font-size:12px;color:var(--accent);cursor:pointer;text-decoration:underline;}
+.pin-supabase-row{display:flex;flex-direction:column;gap:8px;margin-bottom:20px;}
+.pin-input{width:100%;padding:10px 14px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:13px;outline:none;text-align:center;}
+.pin-input:focus{border-color:var(--accent);}
+.sync-indicator{position:fixed;top:12px;right:16px;z-index:500;font-size:11px;display:flex;align-items:center;gap:5px;background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:4px 10px;opacity:0;transition:opacity 0.3s;}
+.sync-indicator.show{opacity:1;}
+.sync-dot{width:6px;height:6px;border-radius:50%;}
+.sync-dot.syncing{background:var(--amber);animation:pulse 1s infinite;}
+.sync-dot.synced{background:var(--green);}
+.sync-dot.offline{background:var(--text3);}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+
 </head>
 <body>
 
-<!-- SIDEBAR -->
+<!-- SYNC INDICATOR -->
+<div class="sync-indicator" id="sync-indicator">
+  <div class="sync-dot" id="sync-dot"></div>
+  <span id="sync-label">Synced</span>
+</div>
+
+<!-- PIN SCREEN -->
+<div class="pin-overlay" id="pin-overlay">
+  <div class="pin-box">
+    <div class="pin-logo">🎯</div>
+    <div class="pin-title">NEET PG 2026</div>
+    <div class="pin-sub" id="pin-sub">Enter your PIN to access your dashboard.<br>New user? Choose any 4–6 digit PIN.</div>
+
+    <!-- Supabase config (shown once on first setup) -->
+    <div class="pin-supabase-row" id="supabase-config-row" style="display:none">
+      <input class="pin-input" id="sb-url" placeholder="Supabase Project URL (https://xxx.supabase.co)" type="url"/>
+      <input class="pin-input" id="sb-key" placeholder="Supabase Anon Key" type="text"/>
+      <div style="font-size:11px;color:var(--text3)">Paste these from your Supabase project → Settings → API</div>
+    </div>
+
+    <div class="pin-dots" id="pin-dots">
+      <div class="pin-dot" id="pd0"></div>
+      <div class="pin-dot" id="pd1"></div>
+      <div class="pin-dot" id="pd2"></div>
+      <div class="pin-dot" id="pd3"></div>
+      <div class="pin-dot" id="pd4"></div>
+      <div class="pin-dot" id="pd5"></div>
+    </div>
+
+    <div class="pin-keypad">
+      <div class="pin-key" onclick="pinKey('1')">1</div>
+      <div class="pin-key" onclick="pinKey('2')">2</div>
+      <div class="pin-key" onclick="pinKey('3')">3</div>
+      <div class="pin-key" onclick="pinKey('4')">4</div>
+      <div class="pin-key" onclick="pinKey('5')">5</div>
+      <div class="pin-key" onclick="pinKey('6')">6</div>
+      <div class="pin-key" onclick="pinKey('7')">7</div>
+      <div class="pin-key" onclick="pinKey('8')">8</div>
+      <div class="pin-key" onclick="pinKey('9')">9</div>
+      <div class="pin-key del" onclick="pinDel()">⌫</div>
+      <div class="pin-key" onclick="pinKey('0')">0</div>
+      <div class="pin-key enter" onclick="pinEnter()">GO</div>
+    </div>
+
+    <div class="pin-msg" id="pin-msg"></div>
+    <div class="pin-toggle" id="pin-toggle" onclick="toggleSupabaseConfig()">⚙ Configure Supabase (first time only)</div>
+  </div>
+</div>
+
+
 <aside class="sidebar">
   <div class="sidebar-logo">
     <div class="logo-title">NEET PG 2026</div>
@@ -466,26 +544,205 @@ width:100%;min-height:80px;padding:12px;background:var(--bg3);border:1px solid v
 
 <script>
 // ============================================================
-// STATE & STORAGE
+// CONFIG — filled by user on first setup, stored in localStorage
 // ============================================================
-const STORAGE_KEY = 'neetpg2026_v3';
+const STORAGE_KEY    = 'neetpg2026_v3';
+const CONFIG_KEY     = 'neetpg2026_config';
+const PIN_SESSION_KEY= 'neetpg2026_pin_session';
+
+let SUPABASE_URL = '';
+let SUPABASE_KEY = '';
+let CURRENT_PIN  = '';   // hashed PIN used as row ID
+let syncTimer    = null;
+let isSyncing    = false;
+
+// ── simple hash (not crypto, just obfuscation — PIN never stored raw) ──
+async function hashPin(pin){
+  const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('neetpg_'+pin));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('').slice(0,32);
+}
+
+// ── load Supabase config from localStorage ──
+function loadConfig(){
+  try{
+    const c=JSON.parse(localStorage.getItem(CONFIG_KEY)||'{}');
+    SUPABASE_URL=c.url||'';
+    SUPABASE_KEY=c.key||'';
+  }catch(e){}
+}
+function saveConfig(url,key){
+  SUPABASE_URL=url.trim();
+  SUPABASE_KEY=key.trim();
+  localStorage.setItem(CONFIG_KEY,JSON.stringify({url:SUPABASE_URL,key:SUPABASE_KEY}));
+}
+
+// ============================================================
+// STATE
+// ============================================================
 let state = {
   topics:{}, days:{}, mcqs:{}, mockScores:{},
   notes:{global:'',mock:''},
   examDate:'2026-08-08',
   startDate:'2026-06-27',
-  dailyMCQ:{},         // {dateStr:{s1,s2,s3}} — per-slot daily question counts
-  dailyMCQTarget:{},   // {dateStr:number} — user-editable daily target
-  schedNotes:{},       // {dateStr:string} — per-day schedule notes
-  subjects: null // overridden by default if null
+  dailyMCQ:{},
+  dailyMCQTarget:{},
+  schedNotes:{},
+  subjects: null
 };
 
-function loadState(){
+// ── localStorage fallback ──
+function loadStateLocal(){
   try{ const s=localStorage.getItem(STORAGE_KEY); if(s) state=Object.assign({},state,JSON.parse(s)); }catch(e){}
 }
-function saveState(){
+function saveStateLocal(){
   try{ localStorage.setItem(STORAGE_KEY,JSON.stringify(state)); }catch(e){}
 }
+
+// ── Supabase REST helpers ──
+async function sbFetch(path,method='GET',body=null){
+  if(!SUPABASE_URL||!SUPABASE_KEY) return null;
+  try{
+    const opts={method,headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=representation'}};
+    if(body) opts.body=JSON.stringify(body);
+    const res=await fetch(SUPABASE_URL+'/rest/v1'+path,opts);
+    if(!res.ok) return null;
+    const text=await res.text();
+    return text?JSON.parse(text):null;
+  }catch(e){return null;}
+}
+
+// ── pull state from Supabase ──
+async function loadStateRemote(pinHash){
+  const rows=await sbFetch('/neetpg_data?pin_id=eq.'+pinHash+'&select=data');
+  if(rows&&rows.length>0&&rows[0].data){
+    try{
+      const remote=typeof rows[0].data==='string'?JSON.parse(rows[0].data):rows[0].data;
+      state=Object.assign({},state,remote);
+      saveStateLocal(); // cache locally
+      return true;
+    }catch(e){}
+  }
+  return false;
+}
+
+// ── push state to Supabase (upsert) ──
+async function saveStateRemote(){
+  if(!SUPABASE_URL||!SUPABASE_KEY||!CURRENT_PIN) return;
+  setSyncStatus('syncing');
+  const res=await sbFetch('/neetpg_data?pin_id=eq.'+CURRENT_PIN,'PATCH',{data:state});
+  if(res===null){
+    // row may not exist yet — insert
+    await sbFetch('/neetpg_data','POST',{pin_id:CURRENT_PIN,data:state});
+  }
+  setSyncStatus('synced');
+}
+
+// ── debounced save: local immediately, remote after 1.5s idle ──
+function saveState(){
+  saveStateLocal();
+  clearTimeout(syncTimer);
+  syncTimer=setTimeout(()=>saveStateRemote(),1500);
+}
+
+// ── sync status indicator ──
+function setSyncStatus(status){
+  const ind=document.getElementById('sync-indicator');
+  const dot=document.getElementById('sync-dot');
+  const lbl=document.getElementById('sync-label');
+  if(!ind)return;
+  ind.classList.add('show');
+  dot.className='sync-dot '+status;
+  lbl.textContent=status==='syncing'?'Syncing…':status==='synced'?'Synced':'Offline';
+  if(status==='synced') setTimeout(()=>ind.classList.remove('show'),3000);
+}
+
+// ============================================================
+// PIN SCREEN
+// ============================================================
+let pinBuffer='';
+const PIN_MIN=4, PIN_MAX=6;
+
+function pinKey(k){
+  if(pinBuffer.length>=PIN_MAX) return;
+  pinBuffer+=k;
+  updatePinDots();
+  setPinMsg('');
+}
+function pinDel(){
+  pinBuffer=pinBuffer.slice(0,-1);
+  updatePinDots();
+  setPinMsg('');
+}
+function updatePinDots(){
+  for(let i=0;i<6;i++){
+    const d=document.getElementById('pd'+i);
+    if(d) d.className='pin-dot'+(i<pinBuffer.length?' filled':'');
+  }
+}
+function setPinMsg(msg,type=''){
+  const el=document.getElementById('pin-msg');
+  if(el){el.textContent=msg;el.className='pin-msg'+(type?' '+type:'');}
+}
+function flashPinError(msg){
+  setPinMsg(msg,'error');
+  for(let i=0;i<6;i++){const d=document.getElementById('pd'+i);if(d&&i<pinBuffer.length)d.className='pin-dot error';}
+  setTimeout(()=>{pinBuffer='';updatePinDots();setPinMsg('');},900);
+}
+function toggleSupabaseConfig(){
+  const row=document.getElementById('supabase-config-row');
+  const tog=document.getElementById('pin-toggle');
+  if(!row)return;
+  const show=row.style.display==='none';
+  row.style.display=show?'flex':'none';
+  row.style.flexDirection='column';
+  tog.textContent=show?'✕ Hide config':'⚙ Configure Supabase (first time only)';
+}
+async function pinEnter(){
+  if(pinBuffer.length<PIN_MIN){flashPinError('PIN must be at least '+PIN_MIN+' digits');return;}
+
+  // Save Supabase config if visible
+  const sbUrlEl=document.getElementById('sb-url');
+  const sbKeyEl=document.getElementById('sb-key');
+  if(sbUrlEl&&sbKeyEl&&sbUrlEl.value.trim()&&sbKeyEl.value.trim()){
+    saveConfig(sbUrlEl.value,sbKeyEl.value);
+  }
+  loadConfig();
+
+  setPinMsg('Verifying…');
+  const hash=await hashPin(pinBuffer);
+  CURRENT_PIN=hash;
+
+  // Try remote load first
+  let loaded=false;
+  if(SUPABASE_URL&&SUPABASE_KEY){
+    setPinMsg('Connecting to cloud…');
+    loaded=await loadStateRemote(hash);
+  }
+  if(!loaded){
+    // fall back to local
+    loadStateLocal();
+    setSyncStatus('offline');
+  }
+
+  // Save PIN session so next open on same browser skips PIN screen
+  sessionStorage.setItem(PIN_SESSION_KEY,hash);
+
+  pinBuffer='';
+  updatePinDots();
+  setPinMsg('Welcome back! Loading…','success');
+  setTimeout(()=>{
+    document.getElementById('pin-overlay').classList.add('hidden');
+    bootDashboard();
+  },500);
+}
+
+// keyboard support for PIN
+document.addEventListener('keydown',e=>{
+  if(document.getElementById('pin-overlay')?.classList.contains('hidden')) return;
+  if(e.key>='0'&&e.key<='9') pinKey(e.key);
+  else if(e.key==='Backspace') pinDel();
+  else if(e.key==='Enter') pinEnter();
+});
 
 // ============================================================
 // DEFAULT SYLLABUS
@@ -1851,17 +2108,13 @@ function showToast(msg){
   setTimeout(()=>t.classList.remove('show'),1800);
 }
 
-function confirmReset(){
-  if(confirm('Reset ALL progress? This cannot be undone.'))
-    {localStorage.removeItem(STORAGE_KEY);location.reload();}
-}
-
 // ============================================================
-// INIT
+// INIT (see window.onload at bottom)
 // ============================================================
-window.onload=function(){
-  loadState();
-
+// ============================================================
+// BOOT DASHBOARD (called after PIN verified)
+// ============================================================
+function bootDashboard(){
   // Set date pickers
   document.getElementById('exam-date-picker').value=state.examDate;
   document.getElementById('start-date-picker').value=state.startDate;
@@ -1870,7 +2123,7 @@ window.onload=function(){
   const gn=document.getElementById('global-notes');if(gn)gn.value=state.notes.global||'';
   const mn=document.getElementById('mock-notes');if(mn)mn.value=state.notes.mock||'';
 
-  // Render
+  // Render all dashboard components
   renderMocks();
   renderSchedule();
   renderOverviewBars();
@@ -1880,7 +2133,7 @@ window.onload=function(){
   updateCountdown();
   updatePhaseIndicator();
 
-  // Sync dashboard MCQ counter from dailyMCQ totals (preserves existing tracked data)
+  // Sync dashboard MCQ counter from dailyMCQ totals
   const allDailyData=Object.values(state.dailyMCQ||{});
   const dailyTotal=allDailyData.reduce((sum,d)=>sum+(d.s1||0)+(d.s2||0)+(d.s3||0),0);
   const dbMcq=document.getElementById('db-mcqs');
@@ -1889,6 +2142,55 @@ window.onload=function(){
   if(barMCQ&&dailyTotal>0)barMCQ.style.width=Math.min(100,Math.round((dailyTotal/25000)*100))+'%';
 
   setInterval(updateCountdown,60000);
+  // Auto-sync every 60s while open
+  setInterval(()=>{if(CURRENT_PIN&&SUPABASE_URL)saveStateRemote();},60000);
+}
+
+// ============================================================
+// RESET
+// ============================================================
+function confirmReset(){
+  if(confirm('Reset ALL progress data? This cannot be undone.')){
+    localStorage.removeItem(STORAGE_KEY);
+    sessionStorage.removeItem(PIN_SESSION_KEY);
+    if(CURRENT_PIN&&SUPABASE_URL)sbFetch('/neetpg_data?pin_id=eq.'+CURRENT_PIN,'DELETE');
+    location.reload();
+  }
+}
+
+// ============================================================
+// ENTRY POINT
+// ============================================================
+window.onload=async function(){
+  loadConfig();
+
+  // Check if PIN session already exists (same browser tab session)
+  const sessionPin=sessionStorage.getItem(PIN_SESSION_KEY);
+  if(sessionPin&&SUPABASE_URL&&SUPABASE_KEY){
+    CURRENT_PIN=sessionPin;
+    document.getElementById('pin-overlay').classList.add('hidden');
+    const loaded=await loadStateRemote(sessionPin);
+    if(!loaded) loadStateLocal();
+    bootDashboard();
+  } else if(sessionPin&&(!SUPABASE_URL||!SUPABASE_KEY)){
+    // Has session but no Supabase config — use local
+    CURRENT_PIN=sessionPin;
+    document.getElementById('pin-overlay').classList.add('hidden');
+    loadStateLocal();
+    setSyncStatus('offline');
+    bootDashboard();
+  } else {
+    // Show PIN screen — pre-fill Supabase fields if config exists
+    const sbUrlEl=document.getElementById('sb-url');
+    const sbKeyEl=document.getElementById('sb-key');
+    if(sbUrlEl&&SUPABASE_URL) sbUrlEl.value=SUPABASE_URL;
+    if(sbKeyEl&&SUPABASE_KEY) sbKeyEl.value=SUPABASE_KEY;
+    // Auto-show Supabase config if not yet configured
+    if(!SUPABASE_URL||!SUPABASE_KEY){
+      toggleSupabaseConfig();
+      document.getElementById('pin-sub').textContent='First time? Paste your Supabase details below, then set a PIN. Next time just enter your PIN.';
+    }
+  }
 };
 </script>
 </body>
