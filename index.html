@@ -242,100 +242,14 @@ width:100%;min-height:80px;padding:12px;background:var(--bg3);border:1px solid v
 .toast{position:fixed;bottom:24px;right:24px;z-index:999;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);padding:10px 16px;font-size:13px;color:var(--text);opacity:0;transform:translateY(10px);transition:all 0.3s;pointer-events:none;}
 .toast.show{opacity:1;transform:translateY(0);}
 
-/* PIN SCREEN */
-.pin-overlay{position:fixed;inset:0;background:#0f1117;z-index:1000;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:0;}
-.pin-overlay.hidden{display:none;}
-.pin-box{background:#1a1d2e;border:1px solid rgba(255,255,255,0.15);border-radius:20px;padding:36px 40px;width:90%;max-width:380px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.5);}
-.pin-logo{font-size:36px;margin-bottom:6px;}
-.pin-title{font-size:22px;font-weight:800;margin-bottom:4px;color:#e8eaf0;}
-.pin-sub{font-size:13px;color:#9098b8;margin-bottom:24px;line-height:1.6;}
-.pin-dots{display:flex;justify-content:center;gap:12px;margin-bottom:24px;}
-.pin-dot{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,0.2);background:transparent;transition:all 0.2s;}
-.pin-dot.filled{background:#6c8ef5;border-color:#6c8ef5;}
-.pin-dot.error{background:#f87171;border-color:#f87171;}
-.pin-keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
-.pin-key{padding:16px;border-radius:12px;border:1px solid rgba(255,255,255,0.1);background:#1e2130;color:#e8eaf0;font-size:20px;font-weight:600;cursor:pointer;transition:all 0.15s;-webkit-tap-highlight-color:transparent;user-select:none;}
-.pin-key:hover{background:#252840;border-color:rgba(255,255,255,0.2);}
-.pin-key:active{transform:scale(0.94);background:rgba(108,142,245,0.2);border-color:#6c8ef5;}
-.pin-key.del{font-size:18px;color:#9098b8;}
-.pin-key.enter{background:#6c8ef5;border-color:#6c8ef5;color:#fff;font-size:14px;font-weight:700;}
-.pin-key.enter:hover{background:#4f70e8;}
-.pin-msg{font-size:12px;color:#9098b8;min-height:20px;transition:color 0.2s;margin-bottom:4px;}
-.pin-msg.error{color:#f87171;}
-.pin-msg.success{color:#34d399;}
-.pin-toggle{margin-top:12px;font-size:12px;color:#6c8ef5;cursor:pointer;text-decoration:underline;}
-.pin-supabase-row{display:none;flex-direction:column;gap:8px;margin-bottom:20px;}
-.pin-input{width:100%;padding:10px 14px;background:#1e2130;border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:#e8eaf0;font-size:12px;outline:none;text-align:left;box-sizing:border-box;}
-.pin-input:focus{border-color:#6c8ef5;}
-.pin-loader{display:flex;flex-direction:column;align-items:center;gap:12px;color:#9098b8;font-size:13px;}
-.pin-spinner{width:32px;height:32px;border:3px solid rgba(108,142,245,0.2);border-top-color:#6c8ef5;border-radius:50%;animation:spin 0.8s linear infinite;}
-@keyframes spin{to{transform:rotate(360deg);}}
-.sync-indicator{position:fixed;top:12px;right:16px;z-index:500;font-size:11px;display:flex;align-items:center;gap:5px;background:#161922;border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:4px 10px;opacity:0;transition:opacity 0.3s;pointer-events:none;}
-.sync-indicator.show{opacity:1;}
-.sync-dot{width:6px;height:6px;border-radius:50%;}
-.sync-dot.syncing{background:#fbbf24;animation:pulse 1s infinite;}
-.sync-dot.synced{background:#34d399;}
-.sync-dot.offline{background:#5a6080;}
-@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
-
+::-webkit-scrollbar{width:6px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:3px;}
+</style>
 </head>
 <body>
 
-<!-- SYNC INDICATOR -->
-<div class="sync-indicator" id="sync-indicator">
-  <div class="sync-dot" id="sync-dot"></div>
-  <span id="sync-label">Synced</span>
-</div>
-
-<!-- PIN SCREEN -->
-<div class="pin-overlay" id="pin-overlay">
-  <!-- Loading spinner (shown while JS initialises) -->
-  <div class="pin-loader" id="pin-loader">
-    <div class="pin-spinner"></div>
-    <span>Loading dashboard…</span>
-  </div>
-
-  <!-- PIN box (hidden until JS decides to show it) -->
-  <div class="pin-box" id="pin-box" style="display:none">
-    <div class="pin-logo">🎯</div>
-    <div class="pin-title">NEET PG 2026</div>
-    <div class="pin-sub" id="pin-sub">Enter your PIN to sync across devices.<br>First time? Pick any 4–6 digit PIN.</div>
-
-    <!-- Supabase config -->
-    <div class="pin-supabase-row" id="supabase-config-row">
-      <input class="pin-input" id="sb-url" placeholder="Supabase URL — https://xxxx.supabase.co" type="url" autocomplete="off"/>
-      <input class="pin-input" id="sb-key" placeholder="Supabase anon/public key" type="text" autocomplete="off"/>
-      <div style="font-size:11px;color:#5a6080;text-align:left;padding:0 2px">Get these from Supabase → Settings → API. <a href="https://supabase.com" target="_blank" style="color:#6c8ef5">Open Supabase ↗</a></div>
-    </div>
-
-    <div class="pin-dots" id="pin-dots">
-      <div class="pin-dot" id="pd0"></div>
-      <div class="pin-dot" id="pd1"></div>
-      <div class="pin-dot" id="pd2"></div>
-      <div class="pin-dot" id="pd3"></div>
-      <div class="pin-dot" id="pd4"></div>
-      <div class="pin-dot" id="pd5"></div>
-    </div>
-
-    <div class="pin-keypad">
-      <div class="pin-key" onclick="pinKey('1')">1</div>
-      <div class="pin-key" onclick="pinKey('2')">2</div>
-      <div class="pin-key" onclick="pinKey('3')">3</div>
-      <div class="pin-key" onclick="pinKey('4')">4</div>
-      <div class="pin-key" onclick="pinKey('5')">5</div>
-      <div class="pin-key" onclick="pinKey('6')">6</div>
-      <div class="pin-key" onclick="pinKey('7')">7</div>
-      <div class="pin-key" onclick="pinKey('8')">8</div>
-      <div class="pin-key" onclick="pinKey('9')">9</div>
-      <div class="pin-key del" onclick="pinDel()">⌫</div>
-      <div class="pin-key" onclick="pinKey('0')">0</div>
-      <div class="pin-key enter" onclick="pinEnter()">GO</div>
-    </div>
-    <div class="pin-msg" id="pin-msg"></div>
-    <div class="pin-toggle" id="pin-toggle" onclick="toggleSupabaseConfig()">⚙ Configure Supabase</div>
-  </div>
-</div>
-
+<!-- SIDEBAR -->
 <aside class="sidebar">
   <div class="sidebar-logo">
     <div class="logo-title">NEET PG 2026</div>
@@ -552,226 +466,26 @@ width:100%;min-height:80px;padding:12px;background:var(--bg3);border:1px solid v
 
 <script>
 // ============================================================
-// CONFIG — filled by user on first setup, stored in localStorage
+// STATE & STORAGE
 // ============================================================
-const STORAGE_KEY    = 'neetpg2026_v3';
-const CONFIG_KEY     = 'neetpg2026_config';
-const PIN_SESSION_KEY= 'neetpg2026_pin_session';
-
-let SUPABASE_URL = '';
-let SUPABASE_KEY = '';
-let CURRENT_PIN  = '';   // hashed PIN used as row ID
-let syncTimer    = null;
-let isSyncing    = false;
-
-// ── simple hash (not crypto, just obfuscation — PIN never stored raw) ──
-async function hashPin(pin){
-  const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('neetpg_'+pin));
-  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('').slice(0,32);
-}
-
-// ── load Supabase config from localStorage ──
-function loadConfig(){
-  try{
-    const c=JSON.parse(localStorage.getItem(CONFIG_KEY)||'{}');
-    SUPABASE_URL=c.url||'';
-    SUPABASE_KEY=c.key||'';
-  }catch(e){}
-}
-function saveConfig(url,key){
-  SUPABASE_URL=url.trim();
-  SUPABASE_KEY=key.trim();
-  localStorage.setItem(CONFIG_KEY,JSON.stringify({url:SUPABASE_URL,key:SUPABASE_KEY}));
-}
-
-// ============================================================
-// STATE
-// ============================================================
+const STORAGE_KEY = 'neetpg2026_v3';
 let state = {
   topics:{}, days:{}, mcqs:{}, mockScores:{},
   notes:{global:'',mock:''},
   examDate:'2026-08-08',
   startDate:'2026-06-27',
-  dailyMCQ:{},
-  dailyMCQTarget:{},
-  schedNotes:{},
-  subjects: null
+  dailyMCQ:{},         // {dateStr:{s1,s2,s3}} — per-slot daily question counts
+  dailyMCQTarget:{},   // {dateStr:number} — user-editable daily target
+  schedNotes:{},       // {dateStr:string} — per-day schedule notes
+  subjects: null // overridden by default if null
 };
 
-// ── localStorage fallback ──
-function loadStateLocal(){
+function loadState(){
   try{ const s=localStorage.getItem(STORAGE_KEY); if(s) state=Object.assign({},state,JSON.parse(s)); }catch(e){}
 }
-function saveStateLocal(){
+function saveState(){
   try{ localStorage.setItem(STORAGE_KEY,JSON.stringify(state)); }catch(e){}
 }
-
-// ── Supabase REST helpers ──
-async function sbFetch(path,method='GET',body=null){
-  if(!SUPABASE_URL||!SUPABASE_KEY) return null;
-  try{
-    const opts={method,headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=representation'}};
-    if(body) opts.body=JSON.stringify(body);
-    const res=await fetch(SUPABASE_URL+'/rest/v1'+path,opts);
-    if(!res.ok) return null;
-    const text=await res.text();
-    return text?JSON.parse(text):null;
-  }catch(e){return null;}
-}
-
-// ── pull state from Supabase ──
-async function loadStateRemote(pinHash){
-  const rows=await sbFetch('/neetpg_data?pin_id=eq.'+pinHash+'&select=data');
-  if(rows&&rows.length>0&&rows[0].data){
-    try{
-      const remote=typeof rows[0].data==='string'?JSON.parse(rows[0].data):rows[0].data;
-      state=Object.assign({},state,remote);
-      saveStateLocal(); // cache locally
-      return true;
-    }catch(e){}
-  }
-  return false;
-}
-
-// ── push state to Supabase (upsert) ──
-async function saveStateRemote(){
-  if(!SUPABASE_URL||!SUPABASE_KEY||!CURRENT_PIN) return;
-  setSyncStatus('syncing');
-  const res=await sbFetch('/neetpg_data?pin_id=eq.'+CURRENT_PIN,'PATCH',{data:state});
-  if(res===null){
-    // row may not exist yet — insert
-    await sbFetch('/neetpg_data','POST',{pin_id:CURRENT_PIN,data:state});
-  }
-  setSyncStatus('synced');
-}
-
-// ── debounced save: local immediately, remote after 1.5s idle ──
-function saveState(){
-  saveStateLocal();
-  clearTimeout(syncTimer);
-  syncTimer=setTimeout(()=>saveStateRemote(),1500);
-}
-
-// ── sync status indicator ──
-function setSyncStatus(status){
-  const ind=document.getElementById('sync-indicator');
-  const dot=document.getElementById('sync-dot');
-  const lbl=document.getElementById('sync-label');
-  if(!ind)return;
-  ind.classList.add('show');
-  dot.className='sync-dot '+status;
-  lbl.textContent=status==='syncing'?'Syncing…':status==='synced'?'Synced':'Offline';
-  if(status==='synced') setTimeout(()=>ind.classList.remove('show'),3000);
-}
-
-// ============================================================
-// PIN SCREEN
-// ============================================================
-let pinBuffer='';
-const PIN_MIN=4, PIN_MAX=6;
-
-function pinKey(k){
-  if(pinBuffer.length>=PIN_MAX) return;
-  pinBuffer+=k;
-  updatePinDots();
-  setPinMsg('');
-}
-function pinDel(){
-  pinBuffer=pinBuffer.slice(0,-1);
-  updatePinDots();
-  setPinMsg('');
-}
-function updatePinDots(){
-  for(let i=0;i<6;i++){
-    const d=document.getElementById('pd'+i);
-    if(d) d.className='pin-dot'+(i<pinBuffer.length?' filled':'');
-  }
-}
-function setPinMsg(msg,type=''){
-  const el=document.getElementById('pin-msg');
-  if(el){el.textContent=msg;el.className='pin-msg'+(type?' '+type:'');}
-}
-function flashPinError(msg){
-  setPinMsg(msg,'error');
-  for(let i=0;i<6;i++){const d=document.getElementById('pd'+i);if(d&&i<pinBuffer.length)d.className='pin-dot error';}
-  setTimeout(()=>{pinBuffer='';updatePinDots();setPinMsg('');},900);
-}
-function toggleSupabaseConfig(){
-  const row=document.getElementById('supabase-config-row');
-  const tog=document.getElementById('pin-toggle');
-  if(!row)return;
-  const isHidden=row.style.display==='none'||row.style.display==='';
-  row.style.display=isHidden?'flex':'none';
-  if(tog)tog.textContent=isHidden?'✕ Hide Supabase config':'⚙ Configure Supabase';
-}
-
-function showPinScreen(firstTime){
-  // Hide loader, show pin box
-  const loader=document.getElementById('pin-loader');
-  const box=document.getElementById('pin-box');
-  if(loader)loader.style.display='none';
-  if(box)box.style.display='block';
-  // Pre-fill saved Supabase config
-  const sbUrlEl=document.getElementById('sb-url');
-  const sbKeyEl=document.getElementById('sb-key');
-  if(sbUrlEl&&SUPABASE_URL)sbUrlEl.value=SUPABASE_URL;
-  if(sbKeyEl&&SUPABASE_KEY)sbKeyEl.value=SUPABASE_KEY;
-  if(firstTime||!SUPABASE_URL||!SUPABASE_KEY){
-    // Auto-expand Supabase config on first time
-    const row=document.getElementById('supabase-config-row');
-    const tog=document.getElementById('pin-toggle');
-    if(row)row.style.display='flex';
-    if(tog)tog.textContent='✕ Hide Supabase config';
-    const sub=document.getElementById('pin-sub');
-    if(sub)sub.textContent='First time setup: paste your Supabase details below, then choose a PIN. Next time just enter your PIN on any device.';
-  }
-}
-async function pinEnter(){
-  if(pinBuffer.length<PIN_MIN){flashPinError('PIN must be at least '+PIN_MIN+' digits');return;}
-  // Save Supabase config if fields are filled
-  const sbUrlEl=document.getElementById('sb-url');
-  const sbKeyEl=document.getElementById('sb-key');
-  if(sbUrlEl&&sbKeyEl&&sbUrlEl.value.trim()&&sbKeyEl.value.trim()){
-    saveConfig(sbUrlEl.value,sbKeyEl.value);
-    loadConfig();
-  }
-  setPinMsg('Verifying…');
-  try{
-    const hash=await hashPin(pinBuffer);
-    CURRENT_PIN=hash;
-    let loaded=false;
-    if(SUPABASE_URL&&SUPABASE_KEY){
-      setPinMsg('Connecting to cloud…');
-      try{ loaded=await loadStateRemote(hash); }catch(e){}
-    }
-    if(!loaded){
-      loadStateLocal();
-      if(!SUPABASE_URL||!SUPABASE_KEY) setSyncStatus('offline');
-    }
-    sessionStorage.setItem(PIN_SESSION_KEY,hash);
-    pinBuffer='';updatePinDots();
-    setPinMsg('Loading your dashboard…','success');
-    setTimeout(()=>{
-      document.getElementById('pin-overlay').classList.add('hidden');
-      bootDashboard();
-    },400);
-  }catch(err){
-    console.error('PIN error:',err);
-    // Even if everything fails, load local and proceed
-    loadStateLocal();
-    sessionStorage.setItem(PIN_SESSION_KEY,CURRENT_PIN||'local');
-    document.getElementById('pin-overlay').classList.add('hidden');
-    bootDashboard();
-  }
-}
-
-// keyboard support for PIN
-document.addEventListener('keydown',e=>{
-  if(document.getElementById('pin-overlay')?.classList.contains('hidden')) return;
-  if(e.key>='0'&&e.key<='9') pinKey(e.key);
-  else if(e.key==='Backspace') pinDel();
-  else if(e.key==='Enter') pinEnter();
-});
 
 // ============================================================
 // DEFAULT SYLLABUS
@@ -2137,13 +1851,17 @@ function showToast(msg){
   setTimeout(()=>t.classList.remove('show'),1800);
 }
 
+function confirmReset(){
+  if(confirm('Reset ALL progress? This cannot be undone.'))
+    {localStorage.removeItem(STORAGE_KEY);location.reload();}
+}
+
 // ============================================================
-// INIT (see window.onload at bottom)
+// INIT
 // ============================================================
-// ============================================================
-// BOOT DASHBOARD (called after PIN verified)
-// ============================================================
-function bootDashboard(){
+window.onload=function(){
+  loadState();
+
   // Set date pickers
   document.getElementById('exam-date-picker').value=state.examDate;
   document.getElementById('start-date-picker').value=state.startDate;
@@ -2152,7 +1870,7 @@ function bootDashboard(){
   const gn=document.getElementById('global-notes');if(gn)gn.value=state.notes.global||'';
   const mn=document.getElementById('mock-notes');if(mn)mn.value=state.notes.mock||'';
 
-  // Render all dashboard components
+  // Render
   renderMocks();
   renderSchedule();
   renderOverviewBars();
@@ -2162,7 +1880,7 @@ function bootDashboard(){
   updateCountdown();
   updatePhaseIndicator();
 
-  // Sync dashboard MCQ counter from dailyMCQ totals
+  // Sync dashboard MCQ counter from dailyMCQ totals (preserves existing tracked data)
   const allDailyData=Object.values(state.dailyMCQ||{});
   const dailyTotal=allDailyData.reduce((sum,d)=>sum+(d.s1||0)+(d.s2||0)+(d.s3||0),0);
   const dbMcq=document.getElementById('db-mcqs');
@@ -2171,60 +1889,6 @@ function bootDashboard(){
   if(barMCQ&&dailyTotal>0)barMCQ.style.width=Math.min(100,Math.round((dailyTotal/25000)*100))+'%';
 
   setInterval(updateCountdown,60000);
-  // Auto-sync every 60s while open
-  setInterval(()=>{if(CURRENT_PIN&&SUPABASE_URL)saveStateRemote();},60000);
-}
-
-// ============================================================
-// RESET
-// ============================================================
-function confirmReset(){
-  if(confirm('Reset ALL progress data? This cannot be undone.')){
-    localStorage.removeItem(STORAGE_KEY);
-    sessionStorage.removeItem(PIN_SESSION_KEY);
-    if(CURRENT_PIN&&SUPABASE_URL)sbFetch('/neetpg_data?pin_id=eq.'+CURRENT_PIN,'DELETE');
-    location.reload();
-  }
-}
-
-// ============================================================
-// ENTRY POINT
-// ============================================================
-window.onload=async function(){
-  try{
-    loadConfig();
-
-    const sessionPin=sessionStorage.getItem(PIN_SESSION_KEY);
-
-    if(sessionPin){
-      // Already authenticated this session — skip PIN screen
-      CURRENT_PIN=sessionPin;
-      // Try remote load if Supabase is configured
-      if(SUPABASE_URL&&SUPABASE_KEY){
-        try{
-          const loaded=await loadStateRemote(sessionPin);
-          if(!loaded) loadStateLocal();
-        }catch(e){ loadStateLocal(); }
-      } else {
-        loadStateLocal();
-        setSyncStatus('offline');
-      }
-      document.getElementById('pin-overlay').classList.add('hidden');
-      bootDashboard();
-    } else {
-      // Show PIN screen
-      showPinScreen(!SUPABASE_URL||!SUPABASE_KEY);
-    }
-  }catch(err){
-    // Fallback: if anything crashes, show PIN screen anyway
-    console.error('Init error:',err);
-    try{ showPinScreen(true); }catch(e){
-      // Last resort: just hide overlay and boot with local data
-      loadStateLocal();
-      document.getElementById('pin-overlay').classList.add('hidden');
-      bootDashboard();
-    }
-  }
 };
 </script>
 </body>
